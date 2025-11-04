@@ -27,11 +27,51 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= 'password',
+            'provider' => 'native',
+            'provider_id' => null,
+            'avatar_path' => null,
+            'trip_style' => fake()->randomElement(['adventure', 'relaxation', 'cultural', 'food', 'nature', 'urban']),
+            'naver_id' => null,
             'remember_token' => Str::random(10),
             'two_factor_secret' => Str::random(10),
             'two_factor_recovery_codes' => Str::random(10),
             'two_factor_confirmed_at' => now(),
         ];
+    }
+
+    /**
+     * Indicate that the user registered via NAVER social auth.
+     */
+    public function naverAuth(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'provider' => 'naver',
+            'provider_id' => 'naver_' . fake()->unique()->numberBetween(100000, 999999),
+            'naver_id' => 'naver_' . fake()->unique()->numberBetween(100000, 999999),
+            'password' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user registered via Google social auth.
+     */
+    public function googleAuth(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'provider' => 'google',
+            'provider_id' => 'google_' . fake()->unique()->numberBetween(100000, 999999),
+            'password' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has an avatar.
+     */
+    public function withAvatar(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'avatar_path' => 'avatars/' . fake()->uuid() . '.jpg',
+        ]);
     }
 
     /**
