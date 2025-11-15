@@ -146,6 +146,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(TripRecommendation::class);
     }
+
+    /**
+     * Get the user's registered webhooks.
+     */
+    public function webhooks()
+    {
+        return $this->hasMany(AgentWebhook::class);
+    }
+
+    /**
+     * Get active webhooks for this user.
+     */
+    public function activeWebhooks()
+    {
+        return $this->hasMany(AgentWebhook::class)->where('is_active', true);
+    }
 }
 
 

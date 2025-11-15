@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\RecommendationCreated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +25,15 @@ use Illuminate\Database\Eloquent\Model;
 class TripRecommendation extends Model
 {
     use HasFactory;
+
+    /**
+     * The event map for the model.
+     *
+     * @var array<string, string>
+     */
+    protected $dispatchesEvents = [
+        'created' => RecommendationCreated::class,
+    ];
 
     /**
      * The attributes that are mass assignable.

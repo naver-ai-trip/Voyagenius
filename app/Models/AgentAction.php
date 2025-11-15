@@ -141,6 +141,9 @@ class AgentAction extends Model
             'status' => 'completed',
             'executed_at' => now(),
         ]);
+
+        // Dispatch event for real-time notification
+        event(new \App\Events\ActionCompleted($this));
     }
 
     /**

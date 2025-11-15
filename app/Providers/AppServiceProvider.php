@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\AgentAction;
+use App\Models\AgentWebhook;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\TripRecommendation;
 use App\Models\UserPreference;
 use App\Policies\AgentActionPolicy;
+use App\Policies\AgentWebhookPolicy;
 use App\Policies\ChatMessagePolicy;
 use App\Policies\ChatSessionPolicy;
 use App\Policies\TripRecommendationPolicy;
@@ -55,5 +57,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TripRecommendation::class, TripRecommendationPolicy::class);
         Gate::policy(AgentAction::class, AgentActionPolicy::class);
         Gate::policy(UserPreference::class, UserPreferencePolicy::class);
+        Gate::policy(AgentWebhook::class, AgentWebhookPolicy::class);
     }
 }

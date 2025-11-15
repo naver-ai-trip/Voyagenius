@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgentActionController;
+use App\Http\Controllers\AgentWebhookController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ChatMessageController;
 use App\Http\Controllers\ChatSessionController;
@@ -143,4 +144,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Preferences - Travel preferences for personalization
     Route::apiResource('user-preferences', UserPreferenceController::class);
+
+    // Agent Webhooks - Real-time event notifications
+    Route::post('/agent-webhooks/{agentWebhook}/test', [AgentWebhookController::class, 'test'])->name('agent-webhooks.test');
+    Route::apiResource('agent-webhooks', AgentWebhookController::class);
 });
