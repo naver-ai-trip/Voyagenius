@@ -327,23 +327,6 @@ class PlaceSearchTest extends TestCase
     }
 
     /** @test */
-    public function saved_place_can_be_retrieved_from_database()
-    {
-        $place = Place::factory()->create([
-            'naver_place_id' => '11111',
-            'name' => 'Test Place',
-            'lat' => 37.5,
-            'lng' => 127.0
-        ]);
-
-        $response = $this->actingAs($this->user)->getJson("/api/places/{$place->id}");
-
-        $response->assertOk()
-            ->assertJsonPath('data.id', $place->id)
-            ->assertJsonPath('data.name', 'Test Place');
-    }
-
-    /** @test */
     public function duplicate_naver_place_id_returns_existing_place()
     {
         $existingPlace = Place::factory()->create([

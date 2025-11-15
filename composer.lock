@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c5f514cf0bbaed986e6ce2035bfd744",
+    "content-hash": "8e99b9f60fb3a5869a46eab27bf36da6",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -9543,6 +9543,87 @@
     ],
     "packages-dev": [
         {
+            "name": "crestapps/laravel-code-generator",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CrestApps/laravel-code-generator.git",
+                "reference": "71dc2acc9336c78a5c332682e40ef32d6214a413"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CrestApps/laravel-code-generator/zipball/71dc2acc9336c78a5c332682e40ef32d6214a413",
+                "reference": "71dc2acc9336c78a5c332682e40ef32d6214a413",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": ">=5.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9||~1.0",
+                "orchestra/testbench": "~3.0",
+                "phpunit/phpunit": "^5.0||^6.0||^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "CrestApps\\CodeGenerator\\CodeGeneratorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CrestApps\\CodeGenerator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Majd Alhayek (Mike)",
+                    "email": "mike@crestapps.com",
+                    "homepage": "https://www.crestapps.com"
+                }
+            ],
+            "description": "An intelligent code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages and/or form-requests! It is extremely flexible and customizable to cover many on the use cases. It is shipped with cross-browsers compatible template, along with a client-side validation to modernize your application.",
+            "keywords": [
+                "Alhayek",
+                "CrestApps",
+                "Majd Alhayek",
+                "Mike Alhayek",
+                "code generator",
+                "code-generator",
+                "controller creator",
+                "crud",
+                "crud builder",
+                "crud generator",
+                "generator",
+                "generators",
+                "laravel",
+                "laravel code generator",
+                "laravel crud",
+                "laravel crud builder",
+                "laravel crud generator",
+                "laravel-code-generator",
+                "routes creator",
+                "views creator"
+            ],
+            "support": {
+                "issues": "https://github.com/CrestApps/laravel-code-generator/issues",
+                "source": "https://github.com/CrestApps/laravel-code-generator/tree/v3.0.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/malhayek",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-03-28T23:01:34+00:00"
+        },
+        {
             "name": "fakerphp/faker",
             "version": "v1.24.1",
             "source": {
@@ -11830,12 +11911,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }

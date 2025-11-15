@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AgentActionController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ChatMessageController;
+use App\Http\Controllers\ChatSessionController;
 use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\CheckpointImageController;
 use App\Http\Controllers\CommentController;
@@ -18,6 +21,8 @@ use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\TripDiaryController;
 use App\Http\Controllers\TripParticipantController;
+use App\Http\Controllers\TripRecommendationController;
+use App\Http\Controllers\UserPreferenceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -113,4 +118,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/search-trends/devices', [SearchTrendController::class, 'getDeviceTrends'])->name('search-trends.devices');
     Route::post('/search-trends/destination-popularity', [SearchTrendController::class, 'analyzeDestinationPopularity'])->name('search-trends.destination-popularity');
     Route::post('/search-trends/seasonal-insights', [SearchTrendController::class, 'getSeasonalInsights'])->name('search-trends.seasonal-insights');
+
+    // ============================================================
+    // AI AGENT INTEGRATION ROUTES
+    // ============================================================
+    
+    // Chat Sessions - AI conversation management
+    Route::post('/chat-sessions/{chatSession}/activate', [ChatSessionController::class, 'activate'])->name('chat-sessions.activate');
+    Route::post('/chat-sessions/{chatSession}/deactivate', [ChatSessionController::class, 'deactivate'])->name('chat-sessions.deactivate');
+    Route::apiResource('chat-sessions', ChatSessionController::class);
+
+    // Chat Messages - Conversation messages (nested under sessions)
+    Route::apiResource('chat-sessions.messages', ChatMessageController::class)->only(['index', 'store', 'show']);
+
+    // Agent Actions - Action tracking (nested under sessions)
+    Route::post('/actions/{action}/complete', [AgentActionController::class, 'complete'])->name('actions.complete');
+    Route::post('/actions/{action}/fail', [AgentActionController::class, 'fail'])->name('actions.fail');
+    Route::apiResource('chat-sessions.actions', AgentActionController::class)->only(['index', 'store', 'show']);
+
+    // Trip Recommendations - AI suggestions (nested under trips)
+    Route::post('/recommendations/{recommendation}/accept', [TripRecommendationController::class, 'accept'])->name('recommendations.accept');
+    Route::post('/recommendations/{recommendation}/reject', [TripRecommendationController::class, 'reject'])->name('recommendations.reject');
+    Route::apiResource('trips.recommendations', TripRecommendationController::class)->only(['index', 'show']);
+
+    // User Preferences - Travel preferences for personalization
+    Route::apiResource('user-preferences', UserPreferenceController::class);
 });

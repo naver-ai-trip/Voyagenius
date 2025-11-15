@@ -28,6 +28,11 @@ class Translation extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function chatSession()
+    {
+        return $this->belongsTo(ChatSession::class);
+    }
+
     /**
      * Scopes
      */

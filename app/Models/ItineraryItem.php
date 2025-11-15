@@ -39,6 +39,11 @@ class ItineraryItem extends Model
         return $this->belongsTo(Place::class);
     }
 
+    public function recommendation(): BelongsTo
+    {
+        return $this->belongsTo(TripRecommendation::class, 'recommendation_id');
+    }
+
     /**
      * Scopes
      */

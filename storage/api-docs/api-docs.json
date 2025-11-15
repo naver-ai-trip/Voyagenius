@@ -15,6 +15,216 @@
         }
     ],
     "paths": {
+        "/api/chat-sessions/{sessionId}/actions": {
+            "get": {
+                "tags": [
+                    "AI Agent - Actions"
+                ],
+                "summary": "List actions in chat session",
+                "description": "Display a listing of actions in a chat session.",
+                "operationId": "3dd4e15245c9006afbf7f1c1868bc4bc",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filter[status]",
+                        "in": "query",
+                        "description": "Filter by status (pending, completed, failed)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[action_type]",
+                        "in": "query",
+                        "description": "Filter by action type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - Actions"
+                ],
+                "summary": "Create a new agent action",
+                "description": "Store a newly created action.",
+                "operationId": "37a0a5406b4d7e33e7e1289303c00d46",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Action created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions/{sessionId}/actions/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - Actions"
+                ],
+                "summary": "Get action details",
+                "description": "Display the specified action.",
+                "operationId": "e6116a5826778da34bb5cf1c4b5ac876",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/actions/{id}/complete": {
+            "post": {
+                "tags": [
+                    "AI Agent - Actions"
+                ],
+                "summary": "Mark action as completed",
+                "description": "Mark an action as completed.",
+                "operationId": "66634759bd88c81a21bb8eef7e612f88",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Action completed"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/actions/{id}/fail": {
+            "post": {
+                "tags": [
+                    "AI Agent - Actions"
+                ],
+                "summary": "Mark action as failed",
+                "description": "Mark an action as failed.",
+                "operationId": "34b400d416141da03e231e51726c7154",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Action marked as failed"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/auth/google": {
             "get": {
                 "tags": [
@@ -116,6 +326,416 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/chat-sessions/{sessionId}/messages": {
+            "get": {
+                "tags": [
+                    "AI Agent - Chat Messages"
+                ],
+                "summary": "List messages in chat session",
+                "description": "Display a listing of messages in a chat session.",
+                "operationId": "f5eebb0e6402b3bfedfa6a269530bdb1",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filter[from_role]",
+                        "in": "query",
+                        "description": "Filter by role (user, ai)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "user",
+                                "ai"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Results per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - Chat Messages"
+                ],
+                "summary": "Send a message in chat session",
+                "description": "Store a newly created message.",
+                "operationId": "5dcbfeb66e3e0724d93223e177826dca",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Message created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions/{sessionId}/messages/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - Chat Messages"
+                ],
+                "summary": "Get message details",
+                "description": "Display the specified message.",
+                "operationId": "c936c9ccac58e402f3fcd8b1963c2e46",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions": {
+            "get": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "List user's chat sessions",
+                "description": "Display a listing of the user's chat sessions.",
+                "operationId": "b16cfb79d513e7992b4e9ee238099564",
+                "parameters": [
+                    {
+                        "name": "filter[is_active]",
+                        "in": "query",
+                        "description": "Filter by active status",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "filter[trip_id]",
+                        "in": "query",
+                        "description": "Filter by trip ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Include relationships (messages, actions)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Create a new chat session",
+                "description": "Store a newly created chat session.",
+                "operationId": "80c1cc1150c7cb2dfa0a3da19480d353",
+                "responses": {
+                    "201": {
+                        "description": "Chat session created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Get chat session details",
+                "description": "Display the specified chat session.",
+                "operationId": "95e8bf809c96c5b7517b8fee3e3c41db",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Include relationships (messages, actions)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Delete chat session",
+                "description": "Remove the specified chat session.",
+                "operationId": "c244f53e62ff50bec9dfb13bf4e2abf7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Session deleted"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Update chat session",
+                "description": "Update the specified chat session.",
+                "operationId": "c7f9042646cbe26b580e774caca793c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session updated"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions/{id}/deactivate": {
+            "post": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Deactivate chat session",
+                "description": "Deactivate the specified chat session.",
+                "operationId": "c51575cf42ff8bd5112b0bf17da9273e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session deactivated"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat-sessions/{id}/activate": {
+            "post": {
+                "tags": [
+                    "AI Agent - Chat Sessions"
+                ],
+                "summary": "Activate chat session",
+                "description": "Activate the specified chat session.",
+                "operationId": "cc9601247bcd54023561e8e6f7becf7b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session activated"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/checklist-items": {
@@ -2978,55 +3598,6 @@
                 ]
             }
         },
-        "/api/places/naver/{naverPlaceId}": {
-            "get": {
-                "tags": [
-                    "Places"
-                ],
-                "summary": "Get place details by NAVER place ID",
-                "description": "Get place details by NAVER place ID.",
-                "operationId": "4e4cdbcd0d9bf596283a5eec617cf28b",
-                "parameters": [
-                    {
-                        "name": "naverPlaceId",
-                        "in": "path",
-                        "description": "NAVER place ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Place details from NAVER Maps",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/Place"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
         "/api/places": {
             "get": {
                 "tags": [
@@ -3102,34 +3673,32 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "naver_place_id"
+                                    "name",
+                                    "latitude",
+                                    "longitude"
                                 ],
                                 "properties": {
-                                    "naver_place_id": {
-                                        "type": "string",
-                                        "example": "1234567890"
-                                    },
-                                    "fetch_details": {
-                                        "description": "Fetch full details from NAVER (default: false)",
-                                        "type": "boolean",
-                                        "example": true
-                                    },
                                     "name": {
-                                        "description": "Used only if fetch_details is false",
                                         "type": "string",
                                         "example": "Tokyo Tower"
                                     },
                                     "latitude": {
-                                        "description": "Used only if fetch_details is false",
                                         "type": "number",
                                         "format": "double",
                                         "example": 35.6586
                                     },
                                     "longitude": {
-                                        "description": "Used only if fetch_details is false",
                                         "type": "number",
                                         "format": "double",
                                         "example": 139.7454
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "4 Chome-2-8 Shibakoen, Minato City, Tokyo"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "Tourism"
                                     }
                                 },
                                 "type": "object"
@@ -6399,6 +6968,363 @@
                     }
                 ]
             }
+        },
+        "/api/trips/{tripId}/recommendations": {
+            "get": {
+                "tags": [
+                    "AI Agent - Recommendations"
+                ],
+                "summary": "List trip recommendations",
+                "description": "Display a listing of recommendations for a trip.",
+                "operationId": "5386bab529edbff17906f4dc2b01e98f",
+                "parameters": [
+                    {
+                        "name": "tripId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filter[status]",
+                        "in": "query",
+                        "description": "Filter by status (pending, accepted, rejected)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[type]",
+                        "in": "query",
+                        "description": "Filter by recommendation type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[min_confidence]",
+                        "in": "query",
+                        "description": "Minimum confidence score",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/{tripId}/recommendations/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - Recommendations"
+                ],
+                "summary": "Get recommendation details",
+                "description": "Display the specified recommendation.",
+                "operationId": "dcc24d6c3491476bda435e4380ed8e3f",
+                "parameters": [
+                    {
+                        "name": "tripId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/recommendations/{id}/accept": {
+            "post": {
+                "tags": [
+                    "AI Agent - Recommendations"
+                ],
+                "summary": "Accept a recommendation",
+                "description": "Accept a recommendation.",
+                "operationId": "7d0db37cffa2cf50b574860a89a597fa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recommendation accepted"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/recommendations/{id}/reject": {
+            "post": {
+                "tags": [
+                    "AI Agent - Recommendations"
+                ],
+                "summary": "Reject a recommendation",
+                "description": "Reject a recommendation.",
+                "operationId": "9020fc4ceb9f3d6845f8f233379a7676",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recommendation rejected"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user-preferences": {
+            "get": {
+                "tags": [
+                    "AI Agent - User Preferences"
+                ],
+                "summary": "List user preferences",
+                "description": "Display a listing of the user's preferences.",
+                "operationId": "c9933c5270d90d1e1ce35a2f527c0b59",
+                "parameters": [
+                    {
+                        "name": "filter[type]",
+                        "in": "query",
+                        "description": "Filter by preference type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - User Preferences"
+                ],
+                "summary": "Create a new user preference",
+                "description": "Store a newly created preference.",
+                "operationId": "7f0f07c55221fbd11b17af9aa1a04e02",
+                "responses": {
+                    "201": {
+                        "description": "Preference created"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user-preferences/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - User Preferences"
+                ],
+                "summary": "Get preference details",
+                "description": "Display the specified preference.",
+                "operationId": "342628485a551dcdc41379f41dc3ea78",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "AI Agent - User Preferences"
+                ],
+                "summary": "Delete user preference",
+                "description": "Remove the specified preference.",
+                "operationId": "b441baa888e273a3098c4c1f103e3c26",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Preference deleted"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "AI Agent - User Preferences"
+                ],
+                "summary": "Update user preference",
+                "description": "Update the specified preference.",
+                "operationId": "3aa1d88258577a62dd31b9d8ca1304ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Preference updated"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -7269,8 +8195,20 @@
             "description": "NAVER DataLab Search Trend API - Analyze keyword search trends, demographics, and seasonal patterns"
         },
         {
+            "name": "AI Agent - Actions",
+            "description": "AI Agent - Actions"
+        },
+        {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "AI Agent - Chat Messages",
+            "description": "AI Agent - Chat Messages"
+        },
+        {
+            "name": "AI Agent - Chat Sessions",
+            "description": "AI Agent - Chat Sessions"
         },
         {
             "name": "Checklist Items",
@@ -7335,6 +8273,14 @@
         {
             "name": "Trip Participants",
             "description": "Trip Participants"
+        },
+        {
+            "name": "AI Agent - Recommendations",
+            "description": "AI Agent - Recommendations"
+        },
+        {
+            "name": "AI Agent - User Preferences",
+            "description": "AI Agent - User Preferences"
         }
     ]
 }

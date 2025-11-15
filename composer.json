@@ -20,6 +20,7 @@
         "predis/predis": "^3.2"
     },
     "require-dev": {
+        "crestapps/laravel-code-generator": "^3.0",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
