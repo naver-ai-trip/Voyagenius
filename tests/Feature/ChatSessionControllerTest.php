@@ -442,4 +442,99 @@ class ChatSessionControllerTest extends TestCase
             ])
             ->assertJsonCount(2, 'data.actions');
     }
+
+    /** @test */
+    public function user_cannot_create_chat_session_for_other_users_trip()
+    {
+        // Create a trip owned by another user
+        $otherUserTrip = Trip::factory()->create([
+            'user_id' => $this->otherUser->id,
+        ]);
+
+        $sessionData = [
+            'trip_id' => $otherUserTrip->id,
+            'session_type' => 'trip_planning',
+            'context' => [
+                'destination' => 'Seoul',
+            ],
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/chat-sessions', $sessionData);
+
+        // Should return 403 Forbidden
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'You do not have permission to create a chat session for this trip. You must be the trip owner or a participant.',
+            ]);
+
+        // Verify session was NOT created
+        $this->assertDatabaseMissing('chat_sessions', [
+            'trip_id' => $otherUserTrip->id,
+            'user_id' => $this->user->id,
+        ]);
+    }
+
+    /** @test */
+    public function trip_participant_can_create_chat_session()
+    {
+        // Create a trip owned by other user
+        $trip = Trip::factory()->create([
+            'user_id' => $this->otherUser->id,
+        ]);
+
+        // Add current user as participant
+        $trip->participants()->create([
+            'user_id' => $this->user->id,
+            'role' => 'editor',
+        ]);
+
+        $sessionData = [
+            'trip_id' => $trip->id,
+            'session_type' => 'itinerary_building',
+            'context' => [
+                'destination' => 'Busan',
+            ],
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/chat-sessions', $sessionData);
+
+        // Should succeed since user is a participant
+        $response->assertStatus(201)
+            ->assertJsonPath('data.trip_id', $trip->id)
+            ->assertJsonPath('data.user_id', $this->user->id);
+
+        // Verify session was created
+        $this->assertDatabaseHas('chat_sessions', [
+            'trip_id' => $trip->id,
+            'user_id' => $this->user->id,
+            'session_type' => 'itinerary_building',
+        ]);
+    }
+
+    /** @test */
+    public function user_can_create_chat_session_without_trip()
+    {
+        // Creating session without trip_id should work
+        $sessionData = [
+            'session_type' => 'place_search',
+            'context' => [
+                'query' => 'Korean restaurants',
+            ],
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/chat-sessions', $sessionData);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.trip_id', null)
+            ->assertJsonPath('data.user_id', $this->user->id);
+
+        $this->assertDatabaseHas('chat_sessions', [
+            'user_id' => $this->user->id,
+            'trip_id' => null,
+            'session_type' => 'place_search',
+        ]);
+    }
 }
