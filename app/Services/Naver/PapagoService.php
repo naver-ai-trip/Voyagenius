@@ -2,6 +2,7 @@
 
 namespace App\Services\Naver;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -214,12 +215,19 @@ class PapagoService extends NaverBaseService
         ]);
 
         // Use multipart/form-data for image upload
-        $response = $this->client()
-            ->asMultipart()
-            ->attach('image', $imageContents, 'image.jpg')
-            ->attach('source', $sourceLang)
-            ->attach('target', $targetLang)
-            ->post('/image-to-text/v1/translate');
+        // Create a fresh client without Content-Type header to allow multipart
+        $response = Http::withHeaders([
+            'X-NCP-APIGW-API-KEY-ID' => $this->clientId,
+            'X-NCP-APIGW-API-KEY' => $this->clientSecret,
+        ])
+        ->baseUrl($this->baseUrl)
+        ->timeout($this->timeout)
+        ->retry($this->retryTimes, $this->retrySleep, throw: false)
+        ->asMultipart()
+        ->attach('image', $imageContents, 'image.jpg')
+        ->attach('source', $sourceLang)
+        ->attach('target', $targetLang)
+        ->post('/image-to-text/v1/translate');
 
         $data = $this->handleResponse($response, 'translate-image');
 
