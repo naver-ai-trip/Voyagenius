@@ -95,7 +95,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Translations (NAVER Papago, OCR, Speech)
     Route::post('/translations/text', [TranslationController::class, 'translateText'])->name('translations.text');
     Route::post('/translations/image', [TranslationController::class, 'translateImage'])->name('translations.image');
+    Route::post('/translations/image-url', [TranslationController::class, 'translateImageUrl'])->name('translations.image-url');
     Route::post('/translations/ocr', [TranslationController::class, 'translateOcr'])->name('translations.ocr');
+    Route::post('/translations/ocr-url', [TranslationController::class, 'translateOcrUrl'])->name('translations.ocr-url');
     Route::post('/translations/speech', [TranslationController::class, 'translateSpeech'])->name('translations.speech');
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
     Route::get('/translations/{translation}', [TranslationController::class, 'show'])->name('translations.show');
