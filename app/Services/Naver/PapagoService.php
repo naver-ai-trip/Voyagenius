@@ -217,7 +217,7 @@ class PapagoService extends NaverBaseService
         $response = $this->client()
             ->asMultipart()
             ->attach('image', $imageContents, 'image.jpg')
-            ->post('/papago-image/v1/translate', [
+            ->post('/image-to-text/v1/translate', [
                 'source' => $sourceLang,
                 'target' => $targetLang,
             ]);
