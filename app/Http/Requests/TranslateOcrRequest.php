@@ -22,7 +22,33 @@ class TranslateOcrRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'url', 'regex:/\.(jpeg|jpg|png|gif|webp)(\?.*)?$/i'], // Image URL
+            // Accept either file upload or URL string
+            'image' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    // Check if it's a file upload
+                    if ($this->hasFile('image')) {
+                        $file = $this->file('image');
+                        if (!$file->isValid()) {
+                            $fail('The image file is invalid.');
+                        }
+                        if (!in_array($file->extension(), ['jpeg', 'jpg', 'png', 'gif', 'webp'])) {
+                            $fail('The image must be a file of type: jpeg, jpg, png, gif, webp.');
+                        }
+                        if ($file->getSize() > 10240 * 1024) { // 10MB
+                            $fail('The image must not be greater than 10MB.');
+                        }
+                        return;
+                    }
+                    // Otherwise, it must be a URL
+                    if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('The image must be either a valid file upload or a valid URL.');
+                    }
+                    if (!preg_match('/\.(jpeg|jpg|png|gif|webp)(\?.*)?$/i', $value)) {
+                        $fail('The image URL must point to a valid image file (jpeg, jpg, png, gif, webp).');
+                    }
+                },
+            ],
             'source_language' => ['nullable', 'string'], // Optional: auto-detect if not provided
             'target_language' => ['required', 'string'],
         ];
@@ -31,8 +57,7 @@ class TranslateOcrRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'image.url' => 'The image must be a valid URL.',
-            'image.regex' => 'The image URL must point to a valid image file (jpeg, jpg, png, gif, webp).',
+            'image.required' => 'The image field is required (either file upload or URL).',
         ];
     }
 }
