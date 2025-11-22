@@ -81,7 +81,7 @@ class ChatMessageController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"message", "from_role"},
+     *             required={"message"},
      *             @OA\Property(
      *                 property="message",
      *                 type="string",
@@ -92,7 +92,7 @@ class ChatMessageController extends Controller
      *                 property="from_role",
      *                 type="string",
      *                 enum={"user", "ai"},
-     *                 description="Who sent this message",
+     *                 description="Who sent this message (defaults to 'user')",
      *                 example="user"
      *             ),
      *             @OA\Property(
@@ -101,20 +101,6 @@ class ChatMessageController extends Controller
      *                 nullable=true,
      *                 description="Additional metadata (AI model info, tokens, etc.)",
      *                 example={"model": "gpt-4", "confidence": 0.95}
-     *             ),
-     *             @OA\Property(
-     *                 property="entity_type",
-     *                 type="string",
-     *                 nullable=true,
-     *                 description="Related entity type (trip, place, etc.)",
-     *                 example="place"
-     *             ),
-     *             @OA\Property(
-     *                 property="entity_id",
-     *                 type="integer",
-     *                 nullable=true,
-     *                 description="Related entity ID",
-     *                 example=123
      *             )
      *         )
      *     ),
@@ -128,8 +114,10 @@ class ChatMessageController extends Controller
      *                 @OA\Property(property="id", type="integer", example=456),
      *                 @OA\Property(property="chat_session_id", type="integer", example=123),
      *                 @OA\Property(property="from_role", type="string", example="user"),
+     *                 @OA\Property(property="message_type", type="string", example="text"),
      *                 @OA\Property(property="message", type="string"),
      *                 @OA\Property(property="metadata", type="object", nullable=true),
+     *                 @OA\Property(property="references", type="array", nullable=true, @OA\Items(type="object")),
      *                 @OA\Property(property="created_at", type="string", format="date-time")
      *             )
      *         )
