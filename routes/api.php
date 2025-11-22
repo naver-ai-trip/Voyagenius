@@ -25,6 +25,7 @@ use App\Http\Controllers\TripDiaryController;
 use App\Http\Controllers\TripParticipantController;
 use App\Http\Controllers\TripRecommendationController;
 use App\Http\Controllers\UserPreferenceController;
+use App\Http\Controllers\HotelController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://tripplanner.test",
+            "url": "https://voyagenius.montserrat.id.vn",
             "description": "API Server"
         }
     ],
@@ -73,21 +73,103 @@
                     "AI Agent - Actions"
                 ],
                 "summary": "Create a new agent action",
-                "description": "Store a newly created action.",
+                "description": "Track AI agent operations like searches, translations, API calls",
                 "operationId": "37a0a5406b4d7e33e7e1289303c00d46",
                 "parameters": [
                     {
                         "name": "sessionId",
                         "in": "path",
+                        "description": "Chat session ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action_type",
+                                    "input_data"
+                                ],
+                                "properties": {
+                                    "action_type": {
+                                        "description": "Type of action being performed",
+                                        "type": "string",
+                                        "enum": [
+                                            "search_places",
+                                            "translate_content",
+                                            "add_to_itinerary",
+                                            "get_recommendations",
+                                            "create_trip"
+                                        ],
+                                        "example": "search_places"
+                                    },
+                                    "input_data": {
+                                        "description": "Input parameters for the action",
+                                        "type": "object",
+                                        "example": {
+                                            "query": "Korean restaurant Seoul",
+                                            "category": "food"
+                                        }
+                                    },
+                                    "entity_type": {
+                                        "description": "Related entity type",
+                                        "type": "string",
+                                        "example": "trip",
+                                        "nullable": true
+                                    },
+                                    "entity_id": {
+                                        "description": "Related entity ID",
+                                        "type": "integer",
+                                        "example": 123,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Action created"
+                        "description": "Action created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 999
+                                                },
+                                                "action_type": {
+                                                    "type": "string",
+                                                    "example": "search_places"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "input_data": {
+                                                    "type": "object"
+                                                },
+                                                "started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -159,21 +241,73 @@
                     "AI Agent - Actions"
                 ],
                 "summary": "Mark action as completed",
-                "description": "Mark an action as completed.",
+                "description": "Update action status to completed with output data",
                 "operationId": "66634759bd88c81a21bb8eef7e612f88",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Action ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "output_data"
+                                ],
+                                "properties": {
+                                    "output_data": {
+                                        "description": "Results from the completed action",
+                                        "type": "object",
+                                        "example": {
+                                            "results_found": 10,
+                                            "processing_time_ms": 234
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Action completed"
+                        "description": "Action marked as completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "completed"
+                                                },
+                                                "output_data": {
+                                                    "type": "object"
+                                                },
+                                                "completed_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -195,8 +329,172 @@
                     "AI Agent - Actions"
                 ],
                 "summary": "Mark action as failed",
-                "description": "Mark an action as failed.",
+                "description": "Update action status to failed with error message",
                 "operationId": "34b400d416141da03e231e51726c7154",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Action ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "error_message"
+                                ],
+                                "properties": {
+                                    "error_message": {
+                                        "description": "Reason for failure",
+                                        "type": "string",
+                                        "example": "NAVER Maps API rate limit exceeded"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Action marked as failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "failed"
+                                                },
+                                                "error_message": {
+                                                    "type": "string"
+                                                },
+                                                "completed_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agent-webhooks": {
+            "get": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "List user's registered webhooks",
+                "operationId": "3925252a0fca0ac56d4678bea52665ad",
+                "responses": {
+                    "200": {
+                        "description": "List of webhooks"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "Register a new webhook",
+                "operationId": "0afdd284d426a48cc897955eb952d733",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "url",
+                                    "events"
+                                ],
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "example": "https://your-agent.com/webhook"
+                                    },
+                                    "events": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "message.sent",
+                                            "recommendation.created"
+                                        ]
+                                    },
+                                    "retry_count": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "timeout_seconds": {
+                                        "type": "integer",
+                                        "example": 30
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Webhook created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agent-webhooks/{id}": {
+            "get": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "Get webhook details",
+                "operationId": "83a1310cc29450c084b16e38b73c587d",
                 "parameters": [
                     {
                         "name": "id",
@@ -209,13 +507,116 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Action marked as failed"
+                        "description": "Webhook details"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "Delete webhook",
+                "operationId": "460e5ae1bc793e067b970d1c9dbcb4d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Webhook deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "Update webhook",
+                "operationId": "6d955152989a2cc283161b3f10b2f259",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "url": {
+                                        "type": "string"
+                                    },
+                                    "events": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agent-webhooks/{id}/test": {
+            "post": {
+                "tags": [
+                    "AI Agent - Webhooks"
+                ],
+                "summary": "Test webhook delivery",
+                "operationId": "02b5540005752432814e73f62e49fbe3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test webhook sent"
                     }
                 },
                 "security": [
@@ -391,21 +792,143 @@
                     "AI Agent - Chat Messages"
                 ],
                 "summary": "Send a message in chat session",
-                "description": "Store a newly created message.",
+                "description": "Send a message from user or AI agent in the conversation",
                 "operationId": "5dcbfeb66e3e0724d93223e177826dca",
                 "parameters": [
                     {
                         "name": "sessionId",
                         "in": "path",
+                        "description": "Chat session ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "description": "Message content",
+                                        "type": "string",
+                                        "example": "I want to visit historical palaces in Seoul"
+                                    },
+                                    "from_role": {
+                                        "description": "Who sent this message (defaults to 'user')",
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "assistant",
+                                            "system"
+                                        ],
+                                        "example": "user"
+                                    },
+                                    "message_type": {
+                                        "description": "Type of message (defaults to 'text')",
+                                        "type": "string",
+                                        "enum": [
+                                            "text",
+                                            "suggestion",
+                                            "action_result",
+                                            "error"
+                                        ],
+                                        "example": "text"
+                                    },
+                                    "metadata": {
+                                        "description": "Additional metadata (AI model info, tokens, etc.)",
+                                        "type": "object",
+                                        "example": {
+                                            "model": "gpt-4",
+                                            "confidence": 0.95
+                                        },
+                                        "nullable": true
+                                    },
+                                    "references": {
+                                        "description": "Links to entities (places, trips, etc.)",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "place"
+                                                },
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Message created"
+                        "description": "Message created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 456
+                                                },
+                                                "chat_session_id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "from_role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                },
+                                                "message_type": {
+                                                    "type": "string",
+                                                    "example": "text"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "I want to visit historical palaces in Seoul"
+                                                },
+                                                "metadata": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "references": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    },
+                                                    "nullable": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -527,17 +1050,148 @@
                     "AI Agent - Chat Sessions"
                 ],
                 "summary": "Create a new chat session",
-                "description": "Store a newly created chat session.",
+                "description": "Start a new conversation session with the AI agent for trip planning, itinerary building, or place search",
                 "operationId": "80c1cc1150c7cb2dfa0a3da19480d353",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "session_type"
+                                ],
+                                "properties": {
+                                    "session_type": {
+                                        "description": "Type of conversation session",
+                                        "type": "string",
+                                        "enum": [
+                                            "trip_planning",
+                                            "itinerary_building",
+                                            "place_search",
+                                            "recommendation"
+                                        ],
+                                        "example": "trip_planning"
+                                    },
+                                    "trip_id": {
+                                        "description": "Optional trip ID to associate with this session",
+                                        "type": "integer",
+                                        "example": 123,
+                                        "nullable": true
+                                    },
+                                    "context": {
+                                        "description": "Additional context for the conversation",
+                                        "type": "object",
+                                        "example": {
+                                            "destination": "Seoul, South Korea",
+                                            "budget": "moderate",
+                                            "interests": [
+                                                "food",
+                                                "culture",
+                                                "history"
+                                            ],
+                                            "travel_dates": {
+                                                "start": "2025-12-01",
+                                                "end": "2025-12-07"
+                                            }
+                                        },
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Chat session created"
+                        "description": "Chat session created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "trip_id": {
+                                                    "type": "integer",
+                                                    "example": null,
+                                                    "nullable": true
+                                                },
+                                                "session_type": {
+                                                    "type": "string",
+                                                    "example": "trip_planning"
+                                                },
+                                                "context": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "ended_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "nullable": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
                     },
                     "422": {
-                        "$ref": "#/components/responses/ValidationError"
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "session_type": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The session type field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1888,6 +2542,841 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/flights/search": {
+            "post": {
+                "tags": [
+                    "Flights"
+                ],
+                "summary": "Search for flight offers",
+                "description": "Search for flight offers (Amadeus Flight Offers Search API).",
+                "operationId": "a35c77c452c86e042995b88a64ff7078",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "origin_location_code",
+                                    "destination_location_code",
+                                    "departure_date",
+                                    "adults"
+                                ],
+                                "properties": {
+                                    "origin_location_code": {
+                                        "type": "string",
+                                        "example": "ICN"
+                                    },
+                                    "destination_location_code": {
+                                        "type": "string",
+                                        "example": "JFK"
+                                    },
+                                    "departure_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-06-01"
+                                    },
+                                    "return_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-06-10"
+                                    },
+                                    "adults": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 1,
+                                        "example": 1
+                                    },
+                                    "children": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 0,
+                                        "example": 1
+                                    },
+                                    "infants": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 0,
+                                        "example": 0
+                                    },
+                                    "travel_class": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ECONOMY",
+                                            "PREMIUM_ECONOMY",
+                                            "BUSINESS",
+                                            "FIRST"
+                                        ]
+                                    },
+                                    "non_stop": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "currency_code": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "max_price": {
+                                        "type": "number",
+                                        "example": 1500
+                                    },
+                                    "max": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "included_checked_bags_only": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "one_way": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "sources": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "GDS"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Flight offers returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_offers": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "origin": {
+                                                    "type": "string",
+                                                    "example": "ICN"
+                                                },
+                                                "destination": {
+                                                    "type": "string",
+                                                    "example": "JFK"
+                                                },
+                                                "departure_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-06-01"
+                                                },
+                                                "return_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-06-10"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/search": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search for hotels by city, geocode, or hotel IDs",
+                "description": "Search for hotels by city, geocode, or hotel IDs.",
+                "operationId": "2548decee0dd0fd0dc65a87bc54716d9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "search_type"
+                                ],
+                                "properties": {
+                                    "search_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "city",
+                                            "geocode",
+                                            "hotel_ids"
+                                        ],
+                                        "example": "city"
+                                    },
+                                    "city_code": {
+                                        "description": "Required if search_type is city",
+                                        "type": "string",
+                                        "example": "NYC"
+                                    },
+                                    "latitude": {
+                                        "description": "Required if search_type is geocode",
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 40.7128
+                                    },
+                                    "longitude": {
+                                        "description": "Required if search_type is geocode",
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": -74.006
+                                    },
+                                    "radius": {
+                                        "description": "Search radius (default: 5)",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "radius_unit": {
+                                        "description": "Radius unit",
+                                        "type": "string",
+                                        "enum": [
+                                            "KM",
+                                            "MILE"
+                                        ],
+                                        "example": "KM"
+                                    },
+                                    "hotel_ids": {
+                                        "description": "Required if search_type is hotel_ids",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    },
+                                    "hotel_source": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ALL",
+                                            "GDS"
+                                        ],
+                                        "example": "ALL"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel search results",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Hotel"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "search_type": {
+                                                    "type": "string",
+                                                    "example": "city"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/offers": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search for hotel offers with availability and pricing",
+                "description": "Search for hotel offers (availability and pricing).",
+                "operationId": "11620163e57d29a6644618d74b616c0c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_ids",
+                                    "check_in_date",
+                                    "check_out_date"
+                                ],
+                                "properties": {
+                                    "hotel_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    },
+                                    "check_in_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "check_out_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-27"
+                                    },
+                                    "adults": {
+                                        "description": "Number of adults (default: 1)",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "room_quantity": {
+                                        "description": "Number of rooms (default: 1)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "currency": {
+                                        "description": "Currency code (3 letters)",
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "price_range": {
+                                        "description": "Price range filter",
+                                        "type": "string",
+                                        "example": "100-500"
+                                    },
+                                    "payment_policy": {
+                                        "type": "string",
+                                        "enum": [
+                                            "NONE",
+                                            "GUARANTEE",
+                                            "DEPOSIT"
+                                        ]
+                                    },
+                                    "board_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ROOM_ONLY",
+                                            "BREAKFAST",
+                                            "HALF_BOARD",
+                                            "FULL_BOARD",
+                                            "ALL_INCLUSIVE"
+                                        ]
+                                    },
+                                    "include_closed": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel offers with availability and pricing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HotelOffer"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "check_in_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2024-12-25"
+                                                },
+                                                "check_out_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2024-12-27"
+                                                },
+                                                "total_hotels": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/offers/{offerId}": {
+            "get": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get hotel offer details by offer ID",
+                "description": "Get hotel offer details by offer ID.",
+                "operationId": "3dda1d36a95a88b75dc86416a2b22a02",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "Hotel offer ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hotel offer details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/HotelOffer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "503": {
+                        "description": "Amadeus API service unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/ratings": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get hotel ratings and sentiments",
+                "description": "Get hotel ratings and sentiments.",
+                "operationId": "abb62348e0e79112717da00f37c9424d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_ids"
+                                ],
+                                "properties": {
+                                    "hotel_ids": {
+                                        "description": "Maximum 3 hotel IDs per request",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "maxItems": 3,
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel ratings and sentiments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HotelRating"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/bookings": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Create a hotel booking",
+                "description": "Create a hotel booking.",
+                "operationId": "726470303b4326739130de79aac2ce71",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "offer_id",
+                                    "guests",
+                                    "payment"
+                                ],
+                                "properties": {
+                                    "offer_id": {
+                                        "type": "string",
+                                        "example": "ABC123XYZ"
+                                    },
+                                    "guests": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "contact": {
+                                                    "properties": {
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "format": "email",
+                                                            "example": "john@example.com"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "payment": {
+                                        "properties": {
+                                            "method": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "CREDIT_CARD"
+                                                ],
+                                                "example": "CREDIT_CARD"
+                                            },
+                                            "card": {
+                                                "properties": {
+                                                    "vendor_code": {
+                                                        "type": "string",
+                                                        "example": "VI"
+                                                    },
+                                                    "card_number": {
+                                                        "type": "string",
+                                                        "example": "4111111111111111"
+                                                    },
+                                                    "expiry_date": {
+                                                        "type": "string",
+                                                        "example": "12/25"
+                                                    },
+                                                    "card_holder_name": {
+                                                        "type": "string",
+                                                        "example": "John Doe"
+                                                    },
+                                                    "card_type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "CREDIT",
+                                                            "DEBIT"
+                                                        ],
+                                                        "example": "CREDIT"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Hotel booking created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hotel booking created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/HotelBooking"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/search-with-offers": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search hotels with offers in one call",
+                "description": "Search hotels with offers in one call (combined search).",
+                "operationId": "bdcb5c33f33469ce31402ee5bbdec4c5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "latitude",
+                                    "longitude",
+                                    "check_in_date",
+                                    "check_out_date"
+                                ],
+                                "properties": {
+                                    "latitude": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 40.7128
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": -74.006
+                                    },
+                                    "check_in_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "check_out_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-27"
+                                    },
+                                    "radius": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "radius_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "KM",
+                                            "MILE"
+                                        ],
+                                        "example": "KM"
+                                    },
+                                    "adults": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "room_quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotels with offers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "hotels": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Hotel"
+                                                    }
+                                                },
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/HotelOffer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_hotels": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total_offers": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -5561,8 +7050,8 @@
                 "tags": [
                     "Translations"
                 ],
-                "summary": "Translate image text using NAVER Papago Image Translation (OCR + Translation in one call)",
-                "description": "Translate image using Papago Image Translation API (RECOMMENDED)",
+                "summary": "Translate uploaded image using NAVER Papago (File Upload)",
+                "description": "Upload an image file, save to storage, and translate using NAVER Papago Image Translation API.",
                 "operationId": "42e02fe716ff7e2106ae076874b4750e",
                 "requestBody": {
                     "required": true,
@@ -5575,17 +7064,89 @@
                                 ],
                                 "properties": {
                                     "image": {
-                                        "description": "Image file (max 10MB)",
+                                        "description": "Image file to upload",
                                         "type": "string",
                                         "format": "binary"
                                     },
                                     "source_language": {
-                                        "description": "Source language (optional: auto-detect if omitted)",
+                                        "description": "Source language (optional: auto-detect)",
                                         "type": "string",
                                         "example": "ko",
                                         "nullable": true
                                     },
                                     "target_language": {
+                                        "description": "Target language code",
+                                        "type": "string",
+                                        "example": "en"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Image translated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Translation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/translations/image-url": {
+            "post": {
+                "tags": [
+                    "Translations"
+                ],
+                "summary": "Translate image from URL using NAVER Papago (Image URL)",
+                "description": "Provide an image URL to translate directly using NAVER Papago Image Translation API.",
+                "operationId": "443a3af525680124c63447ba2f6025bc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "image",
+                                    "target_language"
+                                ],
+                                "properties": {
+                                    "image": {
+                                        "description": "Image URL to translate",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://example.com/images/menu.jpg"
+                                    },
+                                    "source_language": {
+                                        "description": "Source language (optional: auto-detect)",
+                                        "type": "string",
+                                        "example": "ko",
+                                        "nullable": true
+                                    },
+                                    "target_language": {
+                                        "description": "Target language code",
                                         "type": "string",
                                         "example": "en"
                                     }
@@ -5630,8 +7191,8 @@
                 "tags": [
                     "Translations"
                 ],
-                "summary": "Extract text from image and translate using NAVER Clova OCR + Papago (Legacy)",
-                "description": "Extract text from image via OCR and translate (Legacy - use /image instead)",
+                "summary": "OCR and translate uploaded image using NAVER Clova OCR + Papago (File Upload)",
+                "description": "Upload an image file, save to storage, extract text via OCR, and translate.",
                 "operationId": "c72dba4c739b16d40bbcca4a795266b8",
                 "requestBody": {
                     "required": true,
@@ -5644,17 +7205,89 @@
                                 ],
                                 "properties": {
                                     "image": {
-                                        "description": "Image file (max 10MB)",
+                                        "description": "Image file to upload",
                                         "type": "string",
                                         "format": "binary"
                                     },
                                     "source_language": {
-                                        "description": "Source language (optional: auto-detect if omitted)",
+                                        "description": "Source language (optional: auto-detect)",
                                         "type": "string",
                                         "example": "ko",
                                         "nullable": true
                                     },
                                     "target_language": {
+                                        "description": "Target language code",
+                                        "type": "string",
+                                        "example": "en"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "OCR and translation completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Translation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/translations/ocr-url": {
+            "post": {
+                "tags": [
+                    "Translations"
+                ],
+                "summary": "OCR and translate image from URL using NAVER Clova OCR + Papago (Image URL)",
+                "description": "Provide an image URL to extract text via OCR and translate.",
+                "operationId": "c970af538d18e7c6d2165620f93d0437",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "image",
+                                    "target_language"
+                                ],
+                                "properties": {
+                                    "image": {
+                                        "description": "Image URL to process",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://example.com/images/sign.jpg"
+                                    },
+                                    "source_language": {
+                                        "description": "Source language (optional: auto-detect)",
+                                        "type": "string",
+                                        "example": "ko",
+                                        "nullable": true
+                                    },
+                                    "target_language": {
+                                        "description": "Target language code",
                                         "type": "string",
                                         "example": "en"
                                     }
@@ -7031,6 +8664,139 @@
                         "sanctum": []
                     }
                 ]
+            },
+            "post": {
+                "tags": [
+                    "AI Agent - Recommendations"
+                ],
+                "summary": "Create a new AI recommendation",
+                "description": "AI agent creates a recommendation for the trip",
+                "operationId": "4049db650da0e3835d4c3c253f90d5aa",
+                "parameters": [
+                    {
+                        "name": "tripId",
+                        "in": "path",
+                        "description": "Trip ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "recommendation_type",
+                                    "data",
+                                    "confidence_score"
+                                ],
+                                "properties": {
+                                    "recommendation_type": {
+                                        "description": "Type of recommendation",
+                                        "type": "string",
+                                        "enum": [
+                                            "place",
+                                            "itinerary",
+                                            "activity",
+                                            "dining",
+                                            "accommodation",
+                                            "route"
+                                        ],
+                                        "example": "place"
+                                    },
+                                    "data": {
+                                        "description": "Recommendation details (structure varies by type)",
+                                        "type": "object",
+                                        "example": {
+                                            "place_name": "Gyeongbokgung Palace",
+                                            "category": "Historical Site",
+                                            "description": "Largest of the Five Grand Palaces",
+                                            "coordinates": {
+                                                "lat": 37.5788,
+                                                "lng": 126.977
+                                            }
+                                        }
+                                    },
+                                    "confidence_score": {
+                                        "description": "AI confidence in this recommendation (0-1)",
+                                        "type": "number",
+                                        "format": "float",
+                                        "maximum": 1,
+                                        "minimum": 0,
+                                        "example": 0.92
+                                    },
+                                    "reasoning": {
+                                        "description": "Explanation for why this was recommended",
+                                        "type": "string",
+                                        "example": "Based on your interest in history and proximity to other sites",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Recommendation created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1234
+                                                },
+                                                "trip_id": {
+                                                    "type": "integer"
+                                                },
+                                                "recommendation_type": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "data": {
+                                                    "type": "object"
+                                                },
+                                                "confidence_score": {
+                                                    "type": "number"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/trips/{tripId}/recommendations/{id}": {
@@ -7086,21 +8852,65 @@
                     "AI Agent - Recommendations"
                 ],
                 "summary": "Accept a recommendation",
-                "description": "Accept a recommendation.",
+                "description": "Accept AI recommendation and optionally add to itinerary",
                 "operationId": "7d0db37cffa2cf50b574860a89a597fa",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Recommendation ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "note": {
+                                        "description": "Optional note about why accepted",
+                                        "type": "string",
+                                        "example": "Great suggestion! Adding to Day 2.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Recommendation accepted"
+                        "description": "Recommendation accepted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "accepted"
+                                                },
+                                                "accepted_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -7125,21 +8935,65 @@
                     "AI Agent - Recommendations"
                 ],
                 "summary": "Reject a recommendation",
-                "description": "Reject a recommendation.",
+                "description": "Reject AI recommendation with optional feedback",
                 "operationId": "9020fc4ceb9f3d6845f8f233379a7676",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Recommendation ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "feedback": {
+                                        "description": "Reason for rejection (helps AI learn)",
+                                        "type": "string",
+                                        "example": "Too expensive for my budget",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Recommendation rejected"
+                        "description": "Recommendation rejected successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "rejected"
+                                                },
+                                                "rejected_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -7196,11 +9050,83 @@
                     "AI Agent - User Preferences"
                 ],
                 "summary": "Create a new user preference",
-                "description": "Store a newly created preference.",
+                "description": "Store user travel preferences for AI personalization",
                 "operationId": "7f0f07c55221fbd11b17af9aa1a04e02",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "preference_type",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "preference_type": {
+                                        "description": "Type of preference",
+                                        "type": "string",
+                                        "enum": [
+                                            "travel_style",
+                                            "budget_range",
+                                            "dietary_restrictions",
+                                            "accessibility_needs"
+                                        ],
+                                        "example": "travel_style"
+                                    },
+                                    "value": {
+                                        "description": "Preference data",
+                                        "type": "object",
+                                        "example": {
+                                            "styles": [
+                                                "cultural",
+                                                "foodie"
+                                            ],
+                                            "pace": "moderate"
+                                        }
+                                    },
+                                    "priority": {
+                                        "description": "Priority level (1-10, higher = more important)",
+                                        "type": "integer",
+                                        "maximum": 10,
+                                        "minimum": 1,
+                                        "example": 8
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Preference created"
+                        "description": "Preference created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "preference_type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "object"
+                                                },
+                                                "priority": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthorized"
@@ -8136,6 +10062,568 @@
                     }
                 },
                 "type": "object"
+            },
+            "Hotel": {
+                "title": "Hotel",
+                "description": "Hotel information from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "hotelId": {
+                        "type": "string",
+                        "example": "RTPAR001"
+                    },
+                    "chainCode": {
+                        "type": "string",
+                        "example": "RT",
+                        "nullable": true
+                    },
+                    "dupeId": {
+                        "type": "string",
+                        "example": "700012345",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Hotel Example Paris"
+                    },
+                    "rating": {
+                        "type": "string",
+                        "example": "4",
+                        "nullable": true
+                    },
+                    "cityCode": {
+                        "type": "string",
+                        "example": "PAR"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 48.8566,
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 2.3522,
+                        "nullable": true
+                    },
+                    "hotelDistance": {
+                        "properties": {
+                            "distance": {
+                                "type": "number",
+                                "example": 0.5
+                            },
+                            "distanceUnit": {
+                                "type": "string",
+                                "example": "KM"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "address": {
+                        "properties": {
+                            "lines": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "postalCode": {
+                                "type": "string"
+                            },
+                            "cityName": {
+                                "type": "string"
+                            },
+                            "countryCode": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "contact": {
+                        "properties": {
+                            "phone": {
+                                "type": "string"
+                            },
+                            "fax": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "description": {
+                        "properties": {
+                            "lang": {
+                                "type": "string"
+                            },
+                            "text": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "amenities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "media": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "uri": {
+                                    "type": "string"
+                                },
+                                "category": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelOffer": {
+                "title": "Hotel Offer",
+                "description": "Hotel offer with availability and pricing from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel-offers"
+                    },
+                    "hotel": {
+                        "$ref": "#/components/schemas/Hotel"
+                    },
+                    "available": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "offers": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "example": "ABC123XYZ"
+                                },
+                                "checkInDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2024-12-25"
+                                },
+                                "checkOutDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2024-12-27"
+                                },
+                                "room": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "STANDARD_ROOM"
+                                        },
+                                        "typeEstimated": {
+                                            "properties": {
+                                                "category": {
+                                                    "type": "string"
+                                                },
+                                                "beds": {
+                                                    "type": "integer"
+                                                },
+                                                "bedType": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "description": {
+                                            "properties": {
+                                                "text": {
+                                                    "type": "string"
+                                                },
+                                                "lang": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "guests": {
+                                    "properties": {
+                                        "adults": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "price": {
+                                    "properties": {
+                                        "currency": {
+                                            "type": "string",
+                                            "example": "USD"
+                                        },
+                                        "base": {
+                                            "type": "string",
+                                            "example": "200.00"
+                                        },
+                                        "total": {
+                                            "type": "string",
+                                            "example": "400.00"
+                                        },
+                                        "variations": {
+                                            "properties": {
+                                                "average": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "changes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    },
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "policies": {
+                                    "properties": {
+                                        "paymentType": {
+                                            "type": "string",
+                                            "example": "GUARANTEE"
+                                        },
+                                        "cancellation": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "amount": {
+                                                    "type": "string"
+                                                },
+                                                "numberOfNights": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object",
+                                    "nullable": true
+                                },
+                                "self": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "example": "https://api.amadeus.com/v3/shopping/hotel-offers/ABC123XYZ"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "self": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelRating": {
+                "title": "Hotel Rating",
+                "description": "Hotel ratings and sentiments from Amadeus e-Reputation API",
+                "properties": {
+                    "hotelId": {
+                        "type": "string",
+                        "example": "RTPAR001"
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 4.5,
+                        "nullable": true
+                    },
+                    "numberOfRatings": {
+                        "type": "integer",
+                        "example": 1250,
+                        "nullable": true
+                    },
+                    "sentiments": {
+                        "properties": {
+                            "overall": {
+                                "properties": {
+                                    "score": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 0.85
+                                    },
+                                    "distribution": {
+                                        "properties": {
+                                            "positive": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.75
+                                            },
+                                            "neutral": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.15
+                                            },
+                                            "negative": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.1
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "aspects": {
+                                "properties": {
+                                    "service": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "facilities": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "location": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "food": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "room": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelBooking": {
+                "title": "Hotel Booking",
+                "description": "Hotel booking confirmation from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel-booking"
+                    },
+                    "id": {
+                        "type": "string",
+                        "example": "ABC123XYZ"
+                    },
+                    "providerConfirmationId": {
+                        "type": "string",
+                        "example": "CONF123456"
+                    },
+                    "associatedRecords": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "reference": {
+                                    "type": "string"
+                                },
+                                "originSystemCode": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "hotel": {
+                        "$ref": "#/components/schemas/Hotel"
+                    },
+                    "guests": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "MR"
+                                        },
+                                        "firstName": {
+                                            "type": "string",
+                                            "example": "John"
+                                        },
+                                        "lastName": {
+                                            "type": "string",
+                                            "example": "Doe"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "contact": {
+                                    "properties": {
+                                        "phone": {
+                                            "type": "string",
+                                            "example": "+1234567890"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "john@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "method": {
+                                    "type": "string",
+                                    "example": "CREDIT_CARD"
+                                },
+                                "card": {
+                                    "properties": {
+                                        "vendorCode": {
+                                            "type": "string",
+                                            "example": "VI"
+                                        },
+                                        "cardNumber": {
+                                            "type": "string",
+                                            "example": "411111******1111"
+                                        },
+                                        "expiryDate": {
+                                            "type": "string",
+                                            "example": "12/25"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "rooms": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "example": "STANDARD_ROOM"
+                                },
+                                "typeEstimated": {
+                                    "type": "object",
+                                    "nullable": true
+                                },
+                                "description": {
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "checkInDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-25"
+                    },
+                    "checkOutDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-27"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-15T10:30:00Z"
+                    }
+                },
+                "type": "object"
             }
         },
         "responses": {
@@ -8178,6 +10666,26 @@
                         }
                     }
                 }
+            },
+            "ServiceUnavailable": {
+                "description": "Service unavailable",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Hotel search service is currently unavailable"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {}
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
@@ -8190,6 +10698,10 @@
         }
     },
     "tags": [
+        {
+            "name": "AI Agent - Webhooks",
+            "description": "Manage webhook endpoints for real-time event notifications"
+        },
         {
             "name": "Search Trends",
             "description": "NAVER DataLab Search Trend API - Analyze keyword search trends, demographics, and seasonal patterns"
@@ -8225,6 +10737,14 @@
         {
             "name": "Favorites",
             "description": "Favorites"
+        },
+        {
+            "name": "Flights",
+            "description": "Flights"
+        },
+        {
+            "name": "Hotels",
+            "description": "Hotels"
         },
         {
             "name": "Itinerary Items",
