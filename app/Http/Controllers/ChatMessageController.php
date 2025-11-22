@@ -81,9 +81,9 @@ class ChatMessageController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"message"},
+     *             required={"content"},
      *             @OA\Property(
-     *                 property="message",
+     *                 property="content",
      *                 type="string",
      *                 description="Message content",
      *                 example="I want to visit historical palaces in Seoul"
@@ -91,9 +91,16 @@ class ChatMessageController extends Controller
      *             @OA\Property(
      *                 property="from_role",
      *                 type="string",
-     *                 enum={"user", "ai"},
+     *                 enum={"user", "assistant", "system"},
      *                 description="Who sent this message (defaults to 'user')",
      *                 example="user"
+     *             ),
+     *             @OA\Property(
+     *                 property="message_type",
+     *                 type="string",
+     *                 enum={"text", "suggestion", "action_result", "error"},
+     *                 description="Type of message (defaults to 'text')",
+     *                 example="text"
      *             ),
      *             @OA\Property(
      *                 property="metadata",
@@ -101,6 +108,17 @@ class ChatMessageController extends Controller
      *                 nullable=true,
      *                 description="Additional metadata (AI model info, tokens, etc.)",
      *                 example={"model": "gpt-4", "confidence": 0.95}
+     *             ),
+     *             @OA\Property(
+     *                 property="references",
+     *                 type="array",
+     *                 nullable=true,
+     *                 description="Links to entities (places, trips, etc.)",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="type", type="string", example="place"),
+     *                     @OA\Property(property="id", type="integer", example=123)
+     *                 )
      *             )
      *         )
      *     ),
@@ -115,10 +133,11 @@ class ChatMessageController extends Controller
      *                 @OA\Property(property="chat_session_id", type="integer", example=123),
      *                 @OA\Property(property="from_role", type="string", example="user"),
      *                 @OA\Property(property="message_type", type="string", example="text"),
-     *                 @OA\Property(property="message", type="string"),
+     *                 @OA\Property(property="content", type="string", example="I want to visit historical palaces in Seoul"),
      *                 @OA\Property(property="metadata", type="object", nullable=true),
      *                 @OA\Property(property="references", type="array", nullable=true, @OA\Items(type="object")),
-     *                 @OA\Property(property="created_at", type="string", format="date-time")
+     *                 @OA\Property(property="created_at", type="string", format="date-time"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time")
      *             )
      *         )
      *     ),
