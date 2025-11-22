@@ -81,7 +81,6 @@ class PlaceSearchTest extends TestCase
                         'road_address',
                         'latitude',
                         'longitude',
-                        'naver_place_id',
                         'naver_link'
                     ]
                 ],
@@ -201,6 +200,48 @@ class PlaceSearchTest extends TestCase
     }
 
     /** @test */
+    public function saved_place_can_be_retrieved_from_database()
+    {
+        $place = Place::factory()->create([
+            'name' => 'Kyoto Temple',
+            'lat' => 35.0116,
+            'lng' => 135.7681,
+        ]);
+
+        $response = $this->actingAs($this->user, 'sanctum')->getJson("/api/places/{$place->id}");
+
+        $response->assertOk()
+            ->assertJsonPath('name', 'Kyoto Temple')
+            ->assertJsonPath('lat', 35.0116);
+    }
+
+    /** @test */
+    public function duplicate_coordinates_returns_existing_place()
+    {
+        // First save
+        $this->actingAs($this->user, 'sanctum')->postJson('/api/places', [
+            'name' => 'Osaka Castle',
+            'latitude' => 34.6873,
+            'longitude' => 135.5262,
+            'category' => 'Tourism'
+        ]);
+
+        // Try to save again with same coordinates
+        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/places', [
+            'name' => 'Osaka Castle Duplicate',
+            'latitude' => 34.6873,
+            'longitude' => 135.5262,
+            'category' => 'Tourism'
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('message', 'Place already exists');
+
+        // Should only have one place with these coordinates
+        $this->assertCount(1, Place::where('lat', 34.6873)->where('lng', 135.5262)->get());
+    }
+
+    /** @test */
     public function search_requires_authentication()
     {
         $response = $this->postJson('/api/places/search-nearby', [
@@ -283,23 +324,6 @@ class PlaceSearchTest extends TestCase
 
         $response->assertNotFound()
             ->assertJsonPath('message', 'Place not found on NAVER Maps');
-    }
-
-    /** @test */
-    public function saved_place_can_be_retrieved_from_database()
-    {
-        $place = Place::factory()->create([
-            'naver_place_id' => '11111',
-            'name' => 'Test Place',
-            'lat' => 37.5,
-            'lng' => 127.0
-        ]);
-
-        $response = $this->actingAs($this->user)->getJson("/api/places/{$place->id}");
-
-        $response->assertOk()
-            ->assertJsonPath('data.id', $place->id)
-            ->assertJsonPath('data.name', 'Test Place');
     }
 
     /** @test */

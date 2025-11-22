@@ -23,8 +23,6 @@ class ItineraryItem extends Model
 
     protected $casts = [
         'day_number' => 'integer',
-        'start_time' => 'datetime:H:i:s',
-        'end_time' => 'datetime:H:i:s',
     ];
 
     /**
@@ -39,6 +37,11 @@ class ItineraryItem extends Model
     public function place(): BelongsTo
     {
         return $this->belongsTo(Place::class);
+    }
+
+    public function recommendation(): BelongsTo
+    {
+        return $this->belongsTo(TripRecommendation::class, 'recommendation_id');
     }
 
     /**

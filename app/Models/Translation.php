@@ -18,6 +18,11 @@ class Translation extends Model
         'translated_text',
         'target_language',
         'file_path',
+        'blocks',
+    ];
+
+    protected $casts = [
+        'blocks' => 'array',
     ];
 
     /**
@@ -26,6 +31,11 @@ class Translation extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function chatSession()
+    {
+        return $this->belongsTo(ChatSession::class);
     }
 
     /**

@@ -17,7 +17,6 @@ class PlaceFactory extends Factory
     public function definition(): array
     {
         return [
-            'naver_place_id' => 'naver_' . fake()->unique()->numberBetween(100000, 999999),
             'name' => fake()->company() . ' ' . fake()->randomElement(['Tower', 'Museum', 'Park', 'Restaurant', 'Cafe', 'Temple', 'Castle']),
             'address' => fake()->address(),
             'lat' => fake()->latitude(33, 43), // Japan/Korea latitude range
@@ -52,7 +51,6 @@ class PlaceFactory extends Factory
     public function tokyoTower(): static
     {
         return $this->state(fn (array $attributes) => [
-            'naver_place_id' => 'naver_tokyo_tower',
             'name' => 'Tokyo Tower',
             'address' => '4 Chome-2-8 Shibakoen, Minato City, Tokyo',
             'lat' => 35.6585805,

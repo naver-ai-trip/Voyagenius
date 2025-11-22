@@ -22,8 +22,11 @@ class StorePlaceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'naver_place_id' => ['required', 'string', 'max:255'],
-            'fetch_details' => ['nullable', 'boolean'],
+            'name' => ['required', 'string', 'max:255'],
+            'latitude' => ['required', 'numeric', 'min:-90', 'max:90'],
+            'longitude' => ['required', 'numeric', 'min:-180', 'max:180'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'category' => ['nullable', 'string', 'max:100'],
         ];
     }
 }

@@ -114,5 +114,54 @@ class User extends Authenticatable
     {
         return $this->hasMany(CheckpointImage::class);
     }
+
+    /**
+     * Get the user's chat sessions.
+     */
+    public function chatSessions()
+    {
+        return $this->hasMany(ChatSession::class);
+    }
+
+    /**
+     * Get the user's active chat session.
+     */
+    public function activeChatSession()
+    {
+        return $this->hasOne(ChatSession::class)->where('is_active', true)->latest('started_at');
+    }
+
+    /**
+     * Get the user's preferences.
+     */
+    public function preferences()
+    {
+        return $this->hasMany(UserPreference::class);
+    }
+
+    /**
+     * Get the user's trip recommendations.
+     */
+    public function tripRecommendations()
+    {
+        return $this->hasMany(TripRecommendation::class);
+    }
+
+    /**
+     * Get the user's registered webhooks.
+     */
+    public function webhooks()
+    {
+        return $this->hasMany(AgentWebhook::class);
+    }
+
+    /**
+     * Get active webhooks for this user.
+     */
+    public function activeWebhooks()
+    {
+        return $this->hasMany(AgentWebhook::class)->where('is_active', true);
+    }
 }
+
 

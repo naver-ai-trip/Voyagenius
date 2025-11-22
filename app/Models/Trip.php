@@ -162,4 +162,37 @@ class Trip extends Model
         return $query->where('end_date', '<', now())
             ->orderBy('end_date', 'desc');
     }
+
+    /**
+     * Get the chat session associated with this trip.
+     */
+    public function chatSession()
+    {
+        return $this->belongsTo(ChatSession::class);
+    }
+
+    /**
+     * Get all recommendations for this trip.
+     */
+    public function recommendations()
+    {
+        return $this->hasMany(TripRecommendation::class);
+    }
+
+    /**
+     * Get pending recommendations for this trip.
+     */
+    public function pendingRecommendations()
+    {
+        return $this->hasMany(TripRecommendation::class)->where('status', 'pending');
+    }
+
+    /**
+     * Get accepted recommendations for this trip.
+     */
+    public function acceptedRecommendations()
+    {
+        return $this->hasMany(TripRecommendation::class)->where('status', 'accepted');
+    }
 }
+

@@ -22,9 +22,33 @@ class TranslateOcrRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif,webp', 'max:10240'], // 10MB in KB
-            'source_language' => ['nullable', 'string'], // Optional: auto-detect if not provided
+            // Accept either file upload or URL string
+            'image' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    // Check if it's a file upload
+                    if ($this->hasFile('image')) {
+                        $file = $this->file('image');
+                        if (!$file->isValid()) {
+                            $fail('The image file is invalid.');
+                        }
+                        return;
+                    }
+                    // Otherwise, it must be a URL
+                    if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('The image must be either a valid file upload or a valid URL.');
+                    }
+                },
+            ],
+            'source_language' => ['nullable', 'string'],
             'target_language' => ['required', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'image.required' => 'The image field is required (either file upload or URL).',
         ];
     }
 }

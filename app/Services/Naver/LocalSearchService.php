@@ -126,57 +126,6 @@ class LocalSearchService
     }
 
     /**
-     * Get place details by NAVER place ID.
-     * Note: NAVER doesn't have a direct place details API,
-     * so we use the Local Search API with the ID as query parameter.
-     * This is a workaround - in production, you may need NAVER Place API access.
-     *
-     * @param string $placeId NAVER place ID
-     * @return array|null Place data or null if not found
-     */
-    public function getPlaceDetails(string $placeId): ?array
-    {
-        if (!$this->isEnabled()) {
-            Log::warning('NAVER Local Search service is disabled');
-            return null;
-        }
-
-        try {
-            // Search using place ID as query
-            $response = Http::withHeaders($this->getHeaders())
-                ->get($this->baseUrl, [
-                    'query' => $placeId,
-                    'display' => 1, // We only need the first result
-                ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $items = $data['items'] ?? [];
-                
-                if (empty($items)) {
-                    return null;
-                }
-                
-                // Return the first result formatted
-                $formatted = $this->formatResults($items);
-                return $formatted[0] ?? null;
-            }
-
-            Log::error('NAVER Place Details API error', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-
-            return null;
-        } catch (\Exception $e) {
-            Log::error('NAVER Place Details exception', [
-                'message' => $e->getMessage()
-            ]);
-            return null;
-        }
-    }
-
-    /**
      * Format NAVER API results to standardized format.
      *
      * @param array $items Raw items from NAVER API
@@ -193,7 +142,6 @@ class LocalSearchService
                 'latitude' => $this->convertCoordinate($item['mapy'] ?? '0'),
                 'longitude' => $this->convertCoordinate($item['mapx'] ?? '0'),
                 'phone' => $item['telephone'] ?? null,
-                'naver_place_id' => $this->extractPlaceId($item['link'] ?? ''),
                 'naver_link' => $item['link'] ?? null,
                 'description' => $item['description'] ?? null,
                 'business_hours' => $item['businessHours'] ?? null,
@@ -211,22 +159,6 @@ class LocalSearchService
     private function convertCoordinate(string $coordinate): float
     {
         return (float)$coordinate / 10000000;
-    }
-
-    /**
-     * Extract place ID from NAVER place link.
-     *
-     * @param string $link NAVER place URL
-     * @return string|null Place ID or null
-     */
-    private function extractPlaceId(string $link): ?string
-    {
-        // Extract ID from URL like https://place.naver.com/place/12345
-        if (preg_match('/place\/(\d+)/', $link, $matches)) {
-            return $matches[1];
-        }
-
-        return null;
     }
 
     /**

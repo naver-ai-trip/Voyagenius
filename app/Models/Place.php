@@ -22,7 +22,6 @@ class Place extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'naver_place_id',
         'name',
         'address',
         'lat',

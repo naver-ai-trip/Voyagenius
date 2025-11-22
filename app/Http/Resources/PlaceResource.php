@@ -16,7 +16,6 @@ class PlaceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'naver_place_id' => $this->naver_place_id,
             'name' => $this->name,
             'category' => $this->category,
             'address' => $this->address,

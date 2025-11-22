@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\AgentActionController;
+use App\Http\Controllers\AgentWebhookController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ChatMessageController;
+use App\Http\Controllers\ChatSessionController;
 use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\CheckpointImageController;
 use App\Http\Controllers\CommentController;
@@ -12,7 +16,6 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\HotelController;
 use App\Http\Controllers\SearchTrendController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\TagController;
@@ -20,6 +23,8 @@ use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\TripDiaryController;
 use App\Http\Controllers\TripParticipantController;
+use App\Http\Controllers\TripRecommendationController;
+use App\Http\Controllers\UserPreferenceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -91,7 +96,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Translations (NAVER Papago, OCR, Speech)
     Route::post('/translations/text', [TranslationController::class, 'translateText'])->name('translations.text');
     Route::post('/translations/image', [TranslationController::class, 'translateImage'])->name('translations.image');
+    Route::post('/translations/image-url', [TranslationController::class, 'translateImageUrl'])->name('translations.image-url');
     Route::post('/translations/ocr', [TranslationController::class, 'translateOcr'])->name('translations.ocr');
+    Route::post('/translations/ocr-url', [TranslationController::class, 'translateOcrUrl'])->name('translations.ocr-url');
     Route::post('/translations/speech', [TranslationController::class, 'translateSpeech'])->name('translations.speech');
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
     Route::get('/translations/{translation}', [TranslationController::class, 'show'])->name('translations.show');
@@ -100,7 +107,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Place Search & Management
     Route::post('/places/search', [PlaceController::class, 'search'])->name('places.search');
     Route::post('/places/search-nearby', [PlaceController::class, 'searchNearby'])->name('places.search-nearby');
-    Route::get('/places/naver/{naverPlaceId}', [PlaceController::class, 'getByNaverId'])->name('places.naver');
     Route::apiResource('places', PlaceController::class);
 
     // NAVER Maps API (Geocoding & Directions)
@@ -117,6 +123,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/search-trends/destination-popularity', [SearchTrendController::class, 'analyzeDestinationPopularity'])->name('search-trends.destination-popularity');
     Route::post('/search-trends/seasonal-insights', [SearchTrendController::class, 'getSeasonalInsights'])->name('search-trends.seasonal-insights');
 
+    // ============================================================
+    // AI AGENT INTEGRATION ROUTES
+    // ============================================================
+    
+    // Chat Sessions - AI conversation management
+    Route::post('/chat-sessions/{chatSession}/activate', [ChatSessionController::class, 'activate'])->name('chat-sessions.activate');
+    Route::post('/chat-sessions/{chatSession}/deactivate', [ChatSessionController::class, 'deactivate'])->name('chat-sessions.deactivate');
+    Route::apiResource('chat-sessions', ChatSessionController::class);
+
+    // Chat Messages - Conversation messages (nested under sessions)
+    Route::apiResource('chat-sessions.messages', ChatMessageController::class)->only(['index', 'store', 'show']);
+
+    // Agent Actions - Action tracking (nested under sessions)
+    Route::post('/actions/{action}/complete', [AgentActionController::class, 'complete'])->name('actions.complete');
+    Route::post('/actions/{action}/fail', [AgentActionController::class, 'fail'])->name('actions.fail');
+    Route::apiResource('chat-sessions.actions', AgentActionController::class)->only(['index', 'store', 'show']);
+
+    // Trip Recommendations - AI suggestions (nested under trips)
+    Route::post('/recommendations/{recommendation}/accept', [TripRecommendationController::class, 'accept'])->name('recommendations.accept');
+    Route::post('/recommendations/{recommendation}/reject', [TripRecommendationController::class, 'reject'])->name('recommendations.reject');
+    Route::apiResource('trips.recommendations', TripRecommendationController::class)->only(['index', 'store', 'show']);
+
+    // User Preferences - Travel preferences for personalization
+    Route::apiResource('user-preferences', UserPreferenceController::class);
+
+    // Agent Webhooks - Real-time event notifications
+    Route::post('/agent-webhooks/{agentWebhook}/test', [AgentWebhookController::class, 'test'])->name('agent-webhooks.test');
+    Route::apiResource('agent-webhooks', AgentWebhookController::class);
     // Amadeus Hotel APIs
     Route::post('/hotels/search', [HotelController::class, 'search'])->name('hotels.search');
     Route::post('/hotels/offers', [HotelController::class, 'searchOffers'])->name('hotels.offers');

@@ -140,46 +140,7 @@ class PlaceController extends Controller
         ]);
     }
 
-    /**
-     * Get place details by NAVER place ID.
-     *
-     * @OA\Get(
-     *     path="/api/places/naver/{naverPlaceId}",
-     *     summary="Get place details by NAVER place ID",
-     *     tags={"Places"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="naverPlaceId",
-     *         in="path",
-     *         description="NAVER place ID",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Place details from NAVER Maps",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="data", ref="#/components/schemas/Place")
-     *         )
-     *     ),
-     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized"),
-     *     @OA\Response(response=404, ref="#/components/responses/NotFound")
-     * )
-     */
-    public function getByNaverId(string $naverPlaceId): JsonResponse
-    {
-        $placeDetails = $this->localSearchService->getPlaceDetails($naverPlaceId);
 
-        if ($placeDetails === null) {
-            return response()->json([
-                'message' => 'Place not found on NAVER Maps'
-            ], 404);
-        }
-
-        return response()->json([
-            'data' => $placeDetails
-        ]);
-    }
 
     /**
      * Store a place from NAVER to database.
@@ -192,12 +153,12 @@ class PlaceController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"naver_place_id"},
-     *             @OA\Property(property="naver_place_id", type="string", example="1234567890"),
-     *             @OA\Property(property="fetch_details", type="boolean", example=true, description="Fetch full details from NAVER (default: false)"),
-     *             @OA\Property(property="name", type="string", example="Tokyo Tower", description="Used only if fetch_details is false"),
-     *             @OA\Property(property="latitude", type="number", format="double", example=35.6586, description="Used only if fetch_details is false"),
-     *             @OA\Property(property="longitude", type="number", format="double", example=139.7454, description="Used only if fetch_details is false")
+     *             required={"name", "latitude", "longitude"},
+     *             @OA\Property(property="name", type="string", example="Tokyo Tower"),
+     *             @OA\Property(property="latitude", type="number", format="double", example=35.6586),
+     *             @OA\Property(property="longitude", type="number", format="double", example=139.7454),
+     *             @OA\Property(property="address", type="string", example="4 Chome-2-8 Shibakoen, Minato City, Tokyo"),
+     *             @OA\Property(property="category", type="string", example="Tourism")
      *         )
      *     ),
      *     @OA\Response(
@@ -222,10 +183,13 @@ class PlaceController extends Controller
      */
     public function store(StorePlaceRequest $request): JsonResponse
     {
-        $naverPlaceId = $request->input('naver_place_id');
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
 
-        // Check if place already exists
-        $existingPlace = Place::where('naver_place_id', $naverPlaceId)->first();
+        // Check if place already exists by coordinates
+        $existingPlace = Place::where('lat', $latitude)
+            ->where('lng', $longitude)
+            ->first();
 
         if ($existingPlace) {
             return response()->json([
@@ -234,33 +198,14 @@ class PlaceController extends Controller
             ]);
         }
 
-        // Fetch details from NAVER if requested
-        if ($request->input('fetch_details', false)) {
-            $placeDetails = $this->localSearchService->getPlaceDetails($naverPlaceId);
-
-            if ($placeDetails === null) {
-                return response()->json([
-                    'message' => 'Unable to fetch place details from NAVER'
-                ], 422);
-            }
-
-            $place = Place::create([
-                'naver_place_id' => $naverPlaceId,
-                'name' => $placeDetails['name'],
-                'category' => $placeDetails['category'],
-                'address' => $placeDetails['address'],
-                'lat' => $placeDetails['latitude'],
-                'lng' => $placeDetails['longitude'],
-            ]);
-        } else {
-            // Create minimal place entry
-            $place = Place::create([
-                'naver_place_id' => $naverPlaceId,
-                'name' => $request->input('name', 'Unknown Place'),
-                'lat' => $request->input('latitude', 0),
-                'lng' => $request->input('longitude', 0),
-            ]);
-        }
+        // Create place from provided data
+        $place = Place::create([
+            'name' => $request->input('name'),
+            'lat' => $latitude,
+            'lng' => $longitude,
+            'address' => $request->input('address'),
+            'category' => $request->input('category'),
+        ]);
 
         return response()->json([
             'message' => 'Place saved successfully',
