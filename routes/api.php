@@ -5,12 +5,14 @@ use App\Http\Controllers\ChecklistItemController;
 use App\Http\Controllers\CheckpointImageController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FlightController;
 use App\Http\Controllers\ItineraryItemController;
 use App\Http\Controllers\MapCheckpointController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\HotelController;
 use App\Http\Controllers\SearchTrendController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\TagController;
@@ -114,4 +116,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/search-trends/devices', [SearchTrendController::class, 'getDeviceTrends'])->name('search-trends.devices');
     Route::post('/search-trends/destination-popularity', [SearchTrendController::class, 'analyzeDestinationPopularity'])->name('search-trends.destination-popularity');
     Route::post('/search-trends/seasonal-insights', [SearchTrendController::class, 'getSeasonalInsights'])->name('search-trends.seasonal-insights');
+
+    // Amadeus Hotel APIs
+    Route::post('/hotels/search', [HotelController::class, 'search'])->name('hotels.search');
+    Route::post('/hotels/offers', [HotelController::class, 'searchOffers'])->name('hotels.offers');
+    Route::get('/hotels/offers/{offerId}', [HotelController::class, 'getOffer'])->name('hotels.offers.show');
+    Route::post('/hotels/ratings', [HotelController::class, 'getRatings'])->name('hotels.ratings');
+    Route::post('/hotels/bookings', [HotelController::class, 'createBooking'])->name('hotels.bookings.store');
+    Route::post('/hotels/search-with-offers', [HotelController::class, 'searchWithOffers'])->name('hotels.search-with-offers');
+
+    // Amadeus Flights
+    Route::post('/flights/search', [FlightController::class, 'searchOffers'])->name('flights.search');
 });

@@ -282,6 +282,187 @@ namespace App\Http\Controllers;
  *     description="Resource not found",
  *     @OA\JsonContent(ref="#/components/schemas/NotFoundError")
  * )
+ *
+ * @OA\Response(
+ *     response="ServiceUnavailable",
+ *     description="Service unavailable",
+ *     @OA\JsonContent(
+ *         @OA\Property(property="message", type="string", example="Hotel search service is currently unavailable"),
+ *         @OA\Property(property="data", type="array", @OA\Items())
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="Hotel",
+ *     type="object",
+ *     title="Hotel",
+ *     description="Hotel information from Amadeus API",
+ *     @OA\Property(property="type", type="string", example="hotel"),
+ *     @OA\Property(property="hotelId", type="string", example="RTPAR001"),
+ *     @OA\Property(property="chainCode", type="string", nullable=true, example="RT"),
+ *     @OA\Property(property="dupeId", type="string", nullable=true, example="700012345"),
+ *     @OA\Property(property="name", type="string", example="Hotel Example Paris"),
+ *     @OA\Property(property="rating", type="string", nullable=true, example="4"),
+ *     @OA\Property(property="cityCode", type="string", example="PAR"),
+ *     @OA\Property(property="latitude", type="number", format="double", nullable=true, example=48.8566),
+ *     @OA\Property(property="longitude", type="number", format="double", nullable=true, example=2.3522),
+ *     @OA\Property(property="hotelDistance", type="object", nullable=true,
+ *         @OA\Property(property="distance", type="number", example=0.5),
+ *         @OA\Property(property="distanceUnit", type="string", example="KM")
+ *     ),
+ *     @OA\Property(property="address", type="object", nullable=true,
+ *         @OA\Property(property="lines", type="array", @OA\Items(type="string")),
+ *         @OA\Property(property="postalCode", type="string"),
+ *         @OA\Property(property="cityName", type="string"),
+ *         @OA\Property(property="countryCode", type="string")
+ *     ),
+ *     @OA\Property(property="contact", type="object", nullable=true,
+ *         @OA\Property(property="phone", type="string"),
+ *         @OA\Property(property="fax", type="string")
+ *     ),
+ *     @OA\Property(property="description", type="object", nullable=true,
+ *         @OA\Property(property="lang", type="string"),
+ *         @OA\Property(property="text", type="string")
+ *     ),
+ *     @OA\Property(property="amenities", type="array", nullable=true, @OA\Items(type="string")),
+ *     @OA\Property(property="media", type="array", nullable=true, @OA\Items(
+ *         @OA\Property(property="uri", type="string"),
+ *         @OA\Property(property="category", type="string")
+ *     ))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="HotelOffer",
+ *     type="object",
+ *     title="Hotel Offer",
+ *     description="Hotel offer with availability and pricing from Amadeus API",
+ *     @OA\Property(property="type", type="string", example="hotel-offers"),
+ *     @OA\Property(property="hotel", type="object", ref="#/components/schemas/Hotel"),
+ *     @OA\Property(property="available", type="boolean", example=true),
+ *     @OA\Property(property="offers", type="array", @OA\Items(
+ *         @OA\Property(property="id", type="string", example="ABC123XYZ"),
+ *         @OA\Property(property="checkInDate", type="string", format="date", example="2024-12-25"),
+ *         @OA\Property(property="checkOutDate", type="string", format="date", example="2024-12-27"),
+ *         @OA\Property(property="room", type="object",
+ *             @OA\Property(property="type", type="string", example="STANDARD_ROOM"),
+ *             @OA\Property(property="typeEstimated", type="object", nullable=true,
+ *                 @OA\Property(property="category", type="string"),
+ *                 @OA\Property(property="beds", type="integer"),
+ *                 @OA\Property(property="bedType", type="string")
+ *             ),
+ *             @OA\Property(property="description", type="object", nullable=true,
+ *                 @OA\Property(property="text", type="string"),
+ *                 @OA\Property(property="lang", type="string")
+ *             )
+ *         ),
+ *         @OA\Property(property="guests", type="object",
+ *             @OA\Property(property="adults", type="integer", example=2)
+ *         ),
+ *         @OA\Property(property="price", type="object",
+ *             @OA\Property(property="currency", type="string", example="USD"),
+ *             @OA\Property(property="base", type="string", example="200.00"),
+ *             @OA\Property(property="total", type="string", example="400.00"),
+ *             @OA\Property(property="variations", type="object", nullable=true,
+ *                 @OA\Property(property="average", type="object", nullable=true),
+ *                 @OA\Property(property="changes", type="array", nullable=true, @OA\Items(type="object"))
+ *             )
+ *         ),
+ *         @OA\Property(property="policies", type="object", nullable=true,
+ *             @OA\Property(property="paymentType", type="string", example="GUARANTEE"),
+ *             @OA\Property(property="cancellation", type="object", nullable=true,
+ *                 @OA\Property(property="type", type="string"),
+ *                 @OA\Property(property="amount", type="string"),
+ *                 @OA\Property(property="numberOfNights", type="integer")
+ *             )
+ *         ),
+ *         @OA\Property(property="self", type="string", format="uri", example="https://api.amadeus.com/v3/shopping/hotel-offers/ABC123XYZ")
+ *     )),
+ *     @OA\Property(property="self", type="string", format="uri", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="HotelRating",
+ *     type="object",
+ *     title="Hotel Rating",
+ *     description="Hotel ratings and sentiments from Amadeus e-Reputation API",
+ *     @OA\Property(property="hotelId", type="string", example="RTPAR001"),
+ *     @OA\Property(property="rating", type="number", format="double", nullable=true, example=4.5),
+ *     @OA\Property(property="numberOfRatings", type="integer", nullable=true, example=1250),
+ *     @OA\Property(property="sentiments", type="object", nullable=true,
+ *         @OA\Property(property="overall", type="object", nullable=true,
+ *             @OA\Property(property="score", type="number", format="double", example=0.85),
+ *             @OA\Property(property="distribution", type="object", nullable=true,
+ *                 @OA\Property(property="positive", type="number", format="double", example=0.75),
+ *                 @OA\Property(property="neutral", type="number", format="double", example=0.15),
+ *                 @OA\Property(property="negative", type="number", format="double", example=0.10)
+ *             )
+ *         ),
+ *         @OA\Property(property="aspects", type="object", nullable=true,
+ *             @OA\Property(property="service", type="object", nullable=true,
+ *                 @OA\Property(property="score", type="number", format="double"),
+ *                 @OA\Property(property="distribution", type="object", nullable=true)
+ *             ),
+ *             @OA\Property(property="facilities", type="object", nullable=true,
+ *                 @OA\Property(property="score", type="number", format="double"),
+ *                 @OA\Property(property="distribution", type="object", nullable=true)
+ *             ),
+ *             @OA\Property(property="location", type="object", nullable=true,
+ *                 @OA\Property(property="score", type="number", format="double"),
+ *                 @OA\Property(property="distribution", type="object", nullable=true)
+ *             ),
+ *             @OA\Property(property="food", type="object", nullable=true,
+ *                 @OA\Property(property="score", type="number", format="double"),
+ *                 @OA\Property(property="distribution", type="object", nullable=true)
+ *             ),
+ *             @OA\Property(property="room", type="object", nullable=true,
+ *                 @OA\Property(property="score", type="number", format="double"),
+ *                 @OA\Property(property="distribution", type="object", nullable=true)
+ *             )
+ *         )
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="HotelBooking",
+ *     type="object",
+ *     title="Hotel Booking",
+ *     description="Hotel booking confirmation from Amadeus API",
+ *     @OA\Property(property="type", type="string", example="hotel-booking"),
+ *     @OA\Property(property="id", type="string", example="ABC123XYZ"),
+ *     @OA\Property(property="providerConfirmationId", type="string", example="CONF123456"),
+ *     @OA\Property(property="associatedRecords", type="array", nullable=true, @OA\Items(
+ *         @OA\Property(property="reference", type="string"),
+ *         @OA\Property(property="originSystemCode", type="string")
+ *     )),
+ *     @OA\Property(property="hotel", type="object", ref="#/components/schemas/Hotel"),
+ *     @OA\Property(property="guests", type="array", @OA\Items(
+ *         @OA\Property(property="name", type="object",
+ *             @OA\Property(property="title", type="string", example="MR"),
+ *             @OA\Property(property="firstName", type="string", example="John"),
+ *             @OA\Property(property="lastName", type="string", example="Doe")
+ *         ),
+ *         @OA\Property(property="contact", type="object",
+ *             @OA\Property(property="phone", type="string", example="+1234567890"),
+ *             @OA\Property(property="email", type="string", format="email", example="john@example.com")
+ *         )
+ *     )),
+ *     @OA\Property(property="payments", type="array", @OA\Items(
+ *         @OA\Property(property="method", type="string", example="CREDIT_CARD"),
+ *         @OA\Property(property="card", type="object", nullable=true,
+ *             @OA\Property(property="vendorCode", type="string", example="VI"),
+ *             @OA\Property(property="cardNumber", type="string", example="411111******1111"),
+ *             @OA\Property(property="expiryDate", type="string", example="12/25")
+ *         )
+ *     )),
+ *     @OA\Property(property="rooms", type="array", @OA\Items(
+ *         @OA\Property(property="type", type="string", example="STANDARD_ROOM"),
+ *         @OA\Property(property="typeEstimated", type="object", nullable=true),
+ *         @OA\Property(property="description", type="object", nullable=true)
+ *     )),
+ *     @OA\Property(property="checkInDate", type="string", format="date", example="2024-12-25"),
+ *     @OA\Property(property="checkOutDate", type="string", format="date", example="2024-12-27"),
+ *     @OA\Property(property="createdAt", type="string", format="date-time", example="2024-01-15T10:30:00Z")
+ * )
  */
 class SwaggerSchemas
 {

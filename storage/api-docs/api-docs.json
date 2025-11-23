@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://tripplanner.test",
+            "url": "http://localhost:8000",
             "description": "API Server"
         }
     ],
@@ -1268,6 +1268,1060 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/flights/search": {
+            "post": {
+                "tags": [
+                    "Flights"
+                ],
+                "summary": "Search for flight offers",
+                "description": "Search for flight offers (Amadeus Flight Offers Search API).",
+                "operationId": "a35c77c452c86e042995b88a64ff7078",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "origin_location_code",
+                                    "destination_location_code",
+                                    "departure_date",
+                                    "adults"
+                                ],
+                                "properties": {
+                                    "origin_location_code": {
+                                        "type": "string",
+                                        "example": "ICN"
+                                    },
+                                    "destination_location_code": {
+                                        "type": "string",
+                                        "example": "JFK"
+                                    },
+                                    "departure_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-06-01"
+                                    },
+                                    "return_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-06-10"
+                                    },
+                                    "adults": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 1,
+                                        "example": 1
+                                    },
+                                    "children": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 0,
+                                        "example": 1
+                                    },
+                                    "infants": {
+                                        "type": "integer",
+                                        "maximum": 9,
+                                        "minimum": 0,
+                                        "example": 0
+                                    },
+                                    "travel_class": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ECONOMY",
+                                            "PREMIUM_ECONOMY",
+                                            "BUSINESS",
+                                            "FIRST"
+                                        ]
+                                    },
+                                    "non_stop": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "currency_code": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "max_price": {
+                                        "type": "number",
+                                        "example": 1500
+                                    },
+                                    "max": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "included_checked_bags_only": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "one_way": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "sources": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "GDS"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Flight offers returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_offers": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "origin": {
+                                                    "type": "string",
+                                                    "example": "ICN"
+                                                },
+                                                "destination": {
+                                                    "type": "string",
+                                                    "example": "JFK"
+                                                },
+                                                "departure_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-06-01"
+                                                },
+                                                "return_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-06-10"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/search": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search for hotels by city, geocode, or hotel IDs",
+                "description": "Search for hotels by city, geocode, or hotel IDs.",
+                "operationId": "2548decee0dd0fd0dc65a87bc54716d9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "search_type"
+                                ],
+                                "properties": {
+                                    "search_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "city",
+                                            "geocode",
+                                            "hotel_ids"
+                                        ],
+                                        "example": "city"
+                                    },
+                                    "city_code": {
+                                        "description": "Required if search_type is city",
+                                        "type": "string",
+                                        "example": "NYC"
+                                    },
+                                    "latitude": {
+                                        "description": "Required if search_type is geocode",
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 40.7128
+                                    },
+                                    "longitude": {
+                                        "description": "Required if search_type is geocode",
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": -74.006
+                                    },
+                                    "radius": {
+                                        "description": "Search radius (default: 5)",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "radius_unit": {
+                                        "description": "Radius unit",
+                                        "type": "string",
+                                        "enum": [
+                                            "KM",
+                                            "MILE"
+                                        ],
+                                        "example": "KM"
+                                    },
+                                    "hotel_ids": {
+                                        "description": "Required if search_type is hotel_ids",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    },
+                                    "hotel_source": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ALL",
+                                            "GDS"
+                                        ],
+                                        "example": "ALL"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel search results",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Hotel"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "search_type": {
+                                                    "type": "string",
+                                                    "example": "city"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/offers": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search for hotel offers with availability and pricing",
+                "description": "Search for hotel offers (availability and pricing).",
+                "operationId": "11620163e57d29a6644618d74b616c0c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_ids",
+                                    "check_in_date",
+                                    "check_out_date"
+                                ],
+                                "properties": {
+                                    "hotel_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    },
+                                    "check_in_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "check_out_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-27"
+                                    },
+                                    "adults": {
+                                        "description": "Number of adults (default: 1)",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "room_quantity": {
+                                        "description": "Number of rooms (default: 1)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "currency": {
+                                        "description": "Currency code (3 letters)",
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "price_range": {
+                                        "description": "Price range filter",
+                                        "type": "string",
+                                        "example": "100-500"
+                                    },
+                                    "payment_policy": {
+                                        "type": "string",
+                                        "enum": [
+                                            "NONE",
+                                            "GUARANTEE",
+                                            "DEPOSIT"
+                                        ]
+                                    },
+                                    "board_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ROOM_ONLY",
+                                            "BREAKFAST",
+                                            "HALF_BOARD",
+                                            "FULL_BOARD",
+                                            "ALL_INCLUSIVE"
+                                        ]
+                                    },
+                                    "include_closed": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel offers with availability and pricing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HotelOffer"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "check_in_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2024-12-25"
+                                                },
+                                                "check_out_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2024-12-27"
+                                                },
+                                                "total_hotels": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/offers/{offerId}": {
+            "get": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get hotel offer details by offer ID",
+                "description": "Get hotel offer details by offer ID.",
+                "operationId": "3dda1d36a95a88b75dc86416a2b22a02",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "Hotel offer ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hotel offer details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/HotelOffer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "503": {
+                        "description": "Amadeus API service unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/ratings": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get hotel ratings and sentiments",
+                "description": "Get hotel ratings and sentiments.",
+                "operationId": "abb62348e0e79112717da00f37c9424d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_ids"
+                                ],
+                                "properties": {
+                                    "hotel_ids": {
+                                        "description": "Maximum 3 hotel IDs per request",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "maxItems": 3,
+                                        "example": [
+                                            "RTPAR001",
+                                            "RTPAR002"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotel ratings and sentiments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HotelRating"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/bookings": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Create a hotel booking",
+                "description": "Creates a hotel booking (hotel order) using a valid hotel offer ID from the availability search. The booking includes guest information, room associations, and payment details.",
+                "operationId": "createHotelBooking",
+                "requestBody": {
+                    "description": "Hotel booking request data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "offer_id",
+                                    "guests",
+                                    "payment"
+                                ],
+                                "properties": {
+                                    "offer_id": {
+                                        "description": "Hotel offer ID from hotel offers search response. Must be a valid, non-expired offer ID.",
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "4L8PRJPEN7"
+                                    },
+                                    "guests": {
+                                        "description": "Array of guest information. At least one guest is required.",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "first_name",
+                                                "last_name",
+                                                "phone",
+                                                "email"
+                                            ],
+                                            "properties": {
+                                                "tid": {
+                                                    "description": "Temporary guest ID. Auto-generated if not provided (starts from 1).",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "description": "Guest title/gender (MR, MRS, MS, etc.). Optional, max 54 characters.",
+                                                    "type": "string",
+                                                    "maxLength": 54,
+                                                    "pattern": "^[A-Za-z -]*$",
+                                                    "example": "MR"
+                                                },
+                                                "first_name": {
+                                                    "description": "Guest first name (and middle name). Required, max 56 characters.",
+                                                    "type": "string",
+                                                    "maxLength": 56,
+                                                    "minLength": 1,
+                                                    "example": "BOB"
+                                                },
+                                                "last_name": {
+                                                    "description": "Guest last name. Required, max 57 characters.",
+                                                    "type": "string",
+                                                    "maxLength": 57,
+                                                    "minLength": 1,
+                                                    "example": "SMITH"
+                                                },
+                                                "phone": {
+                                                    "description": "Guest phone number. Required. E.123 format recommended (e.g., +33679278416).",
+                                                    "type": "string",
+                                                    "maxLength": 199,
+                                                    "minLength": 2,
+                                                    "example": "+33679278416"
+                                                },
+                                                "email": {
+                                                    "description": "Guest email address. Required, must be a valid email format.",
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "maxLength": 90,
+                                                    "minLength": 3,
+                                                    "example": "bob.smith@email.com"
+                                                },
+                                                "child_age": {
+                                                    "description": "Child age if the guest is a child. If provided, the guest will be treated as a child. If not provided and guest is not an adult, the system will consider them as an adult.",
+                                                    "type": "integer",
+                                                    "example": null
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "minItems": 1
+                                    },
+                                    "payment": {
+                                        "description": "Payment information for the booking",
+                                        "required": [
+                                            "method",
+                                            "payment_card"
+                                        ],
+                                        "properties": {
+                                            "method": {
+                                                "description": "Payment method. Currently only CREDIT_CARD is supported.",
+                                                "type": "string",
+                                                "enum": [
+                                                    "CREDIT_CARD"
+                                                ],
+                                                "example": "CREDIT_CARD"
+                                            },
+                                            "payment_card": {
+                                                "description": "Payment card information",
+                                                "required": [
+                                                    "vendor_code",
+                                                    "card_number",
+                                                    "expiry_date",
+                                                    "holder_name"
+                                                ],
+                                                "properties": {
+                                                    "vendor_code": {
+                                                        "description": "Card vendor code. Common values: VI (Visa), MC (MasterCard), AX (American Express), etc.",
+                                                        "type": "string",
+                                                        "example": "VI"
+                                                    },
+                                                    "card_number": {
+                                                        "description": "Credit card number. Full card number without spaces or dashes.",
+                                                        "type": "string",
+                                                        "example": "4151289722471370"
+                                                    },
+                                                    "expiry_date": {
+                                                        "description": "Card expiry date in YYYY-MM format (e.g., 2026-08 for August 2026).",
+                                                        "type": "string",
+                                                        "pattern": "^\\d{4}-\\d{2}$",
+                                                        "example": "2026-08"
+                                                    },
+                                                    "holder_name": {
+                                                        "description": "Card holder name as it appears on the card.",
+                                                        "type": "string",
+                                                        "example": "BOB SMITH"
+                                                    },
+                                                    "security_code": {
+                                                        "description": "Card security code (CVV/CVC). Optional but may be required by some hotel providers.",
+                                                        "type": "string",
+                                                        "example": null
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "travel_agent": {
+                                        "description": "Travel agent contact information. Optional.",
+                                        "properties": {
+                                            "contact": {
+                                                "description": "Travel agent contact details",
+                                                "properties": {
+                                                    "email": {
+                                                        "description": "Travel agent contact email address. Optional.",
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "maxLength": 90,
+                                                        "minLength": 3,
+                                                        "example": "agent@travelagency.com"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Hotel booking created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hotel booking created successfully"
+                                        },
+                                        "data": {
+                                            "description": "Hotel order/booking confirmation data",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "hotel-order"
+                                                },
+                                                "id": {
+                                                    "description": "Hotel order ID",
+                                                    "type": "string",
+                                                    "example": "V0g2VFJaLzIwMjQtMDYtMDc="
+                                                },
+                                                "hotelBookings": {
+                                                    "description": "Array of hotel bookings in this order",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "example": "hotel-booking"
+                                                            },
+                                                            "id": {
+                                                                "description": "Hotel booking ID",
+                                                                "type": "string",
+                                                                "example": "MS84OTkyMjcxMC85MDIyNDU0OQ=="
+                                                            },
+                                                            "bookingStatus": {
+                                                                "description": "Booking status (e.g., CONFIRMED, PENDING)",
+                                                                "type": "string",
+                                                                "example": "CONFIRMED"
+                                                            },
+                                                            "hotelProviderInformation": {
+                                                                "description": "Hotel provider confirmation details",
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "hotelProviderCode": {
+                                                                            "type": "string",
+                                                                            "example": "AR"
+                                                                        },
+                                                                        "confirmationNumber": {
+                                                                            "type": "string",
+                                                                            "example": "89922710"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "roomAssociations": {
+                                                                "description": "Room associations with guest references",
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "hotelOfferId": {
+                                                                            "type": "string",
+                                                                            "example": "4L8PRJPEN7"
+                                                                        },
+                                                                        "guestReferences": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "properties": {
+                                                                                    "guestReference": {
+                                                                                        "type": "string",
+                                                                                        "example": "1"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "hotel": {
+                                                                "description": "Hotel information",
+                                                                "properties": {
+                                                                    "hotelId": {
+                                                                        "type": "string",
+                                                                        "example": "ARMADAIT"
+                                                                    },
+                                                                    "chainCode": {
+                                                                        "type": "string",
+                                                                        "example": "AR"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "AC BY MARRIOTT HOTEL AITANA"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "guests": {
+                                                    "description": "Guest information",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "tid": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "title": {
+                                                                "type": "string",
+                                                                "example": "MR"
+                                                            },
+                                                            "firstName": {
+                                                                "type": "string",
+                                                                "example": "BOB"
+                                                            },
+                                                            "lastName": {
+                                                                "type": "string",
+                                                                "example": "SMITH"
+                                                            },
+                                                            "phone": {
+                                                                "type": "string",
+                                                                "example": "+33679278416"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "bob.smith@email.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "description": "Service unavailable - Hotel booking service is currently unavailable or booking failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hotel booking service is currently unavailable or booking failed"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/hotels/search-with-offers": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Search hotels with offers in one call",
+                "description": "Search hotels with offers in one call (combined search).",
+                "operationId": "bdcb5c33f33469ce31402ee5bbdec4c5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "latitude",
+                                    "longitude",
+                                    "check_in_date",
+                                    "check_out_date"
+                                ],
+                                "properties": {
+                                    "latitude": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 40.7128
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": -74.006
+                                    },
+                                    "check_in_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "check_out_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-27"
+                                    },
+                                    "radius": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "radius_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "KM",
+                                            "MILE"
+                                        ],
+                                        "example": "KM"
+                                    },
+                                    "adults": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "room_quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Hotels with offers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "hotels": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Hotel"
+                                                    }
+                                                },
+                                                "offers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/HotelOffer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_hotels": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total_offers": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -7210,6 +8264,568 @@
                     }
                 },
                 "type": "object"
+            },
+            "Hotel": {
+                "title": "Hotel",
+                "description": "Hotel information from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "hotelId": {
+                        "type": "string",
+                        "example": "RTPAR001"
+                    },
+                    "chainCode": {
+                        "type": "string",
+                        "example": "RT",
+                        "nullable": true
+                    },
+                    "dupeId": {
+                        "type": "string",
+                        "example": "700012345",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Hotel Example Paris"
+                    },
+                    "rating": {
+                        "type": "string",
+                        "example": "4",
+                        "nullable": true
+                    },
+                    "cityCode": {
+                        "type": "string",
+                        "example": "PAR"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 48.8566,
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 2.3522,
+                        "nullable": true
+                    },
+                    "hotelDistance": {
+                        "properties": {
+                            "distance": {
+                                "type": "number",
+                                "example": 0.5
+                            },
+                            "distanceUnit": {
+                                "type": "string",
+                                "example": "KM"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "address": {
+                        "properties": {
+                            "lines": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "postalCode": {
+                                "type": "string"
+                            },
+                            "cityName": {
+                                "type": "string"
+                            },
+                            "countryCode": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "contact": {
+                        "properties": {
+                            "phone": {
+                                "type": "string"
+                            },
+                            "fax": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "description": {
+                        "properties": {
+                            "lang": {
+                                "type": "string"
+                            },
+                            "text": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "amenities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "media": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "uri": {
+                                    "type": "string"
+                                },
+                                "category": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelOffer": {
+                "title": "Hotel Offer",
+                "description": "Hotel offer with availability and pricing from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel-offers"
+                    },
+                    "hotel": {
+                        "$ref": "#/components/schemas/Hotel"
+                    },
+                    "available": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "offers": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "example": "ABC123XYZ"
+                                },
+                                "checkInDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2024-12-25"
+                                },
+                                "checkOutDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2024-12-27"
+                                },
+                                "room": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "STANDARD_ROOM"
+                                        },
+                                        "typeEstimated": {
+                                            "properties": {
+                                                "category": {
+                                                    "type": "string"
+                                                },
+                                                "beds": {
+                                                    "type": "integer"
+                                                },
+                                                "bedType": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "description": {
+                                            "properties": {
+                                                "text": {
+                                                    "type": "string"
+                                                },
+                                                "lang": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "guests": {
+                                    "properties": {
+                                        "adults": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "price": {
+                                    "properties": {
+                                        "currency": {
+                                            "type": "string",
+                                            "example": "USD"
+                                        },
+                                        "base": {
+                                            "type": "string",
+                                            "example": "200.00"
+                                        },
+                                        "total": {
+                                            "type": "string",
+                                            "example": "400.00"
+                                        },
+                                        "variations": {
+                                            "properties": {
+                                                "average": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "changes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    },
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "policies": {
+                                    "properties": {
+                                        "paymentType": {
+                                            "type": "string",
+                                            "example": "GUARANTEE"
+                                        },
+                                        "cancellation": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "amount": {
+                                                    "type": "string"
+                                                },
+                                                "numberOfNights": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object",
+                                    "nullable": true
+                                },
+                                "self": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "example": "https://api.amadeus.com/v3/shopping/hotel-offers/ABC123XYZ"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "self": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelRating": {
+                "title": "Hotel Rating",
+                "description": "Hotel ratings and sentiments from Amadeus e-Reputation API",
+                "properties": {
+                    "hotelId": {
+                        "type": "string",
+                        "example": "RTPAR001"
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 4.5,
+                        "nullable": true
+                    },
+                    "numberOfRatings": {
+                        "type": "integer",
+                        "example": 1250,
+                        "nullable": true
+                    },
+                    "sentiments": {
+                        "properties": {
+                            "overall": {
+                                "properties": {
+                                    "score": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 0.85
+                                    },
+                                    "distribution": {
+                                        "properties": {
+                                            "positive": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.75
+                                            },
+                                            "neutral": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.15
+                                            },
+                                            "negative": {
+                                                "type": "number",
+                                                "format": "double",
+                                                "example": 0.1
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "aspects": {
+                                "properties": {
+                                    "service": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "facilities": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "location": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "food": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    },
+                                    "room": {
+                                        "properties": {
+                                            "score": {
+                                                "type": "number",
+                                                "format": "double"
+                                            },
+                                            "distribution": {
+                                                "type": "object",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotelBooking": {
+                "title": "Hotel Booking",
+                "description": "Hotel booking confirmation from Amadeus API",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "hotel-booking"
+                    },
+                    "id": {
+                        "type": "string",
+                        "example": "ABC123XYZ"
+                    },
+                    "providerConfirmationId": {
+                        "type": "string",
+                        "example": "CONF123456"
+                    },
+                    "associatedRecords": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "reference": {
+                                    "type": "string"
+                                },
+                                "originSystemCode": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "hotel": {
+                        "$ref": "#/components/schemas/Hotel"
+                    },
+                    "guests": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "MR"
+                                        },
+                                        "firstName": {
+                                            "type": "string",
+                                            "example": "John"
+                                        },
+                                        "lastName": {
+                                            "type": "string",
+                                            "example": "Doe"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "contact": {
+                                    "properties": {
+                                        "phone": {
+                                            "type": "string",
+                                            "example": "+1234567890"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "john@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "method": {
+                                    "type": "string",
+                                    "example": "CREDIT_CARD"
+                                },
+                                "card": {
+                                    "properties": {
+                                        "vendorCode": {
+                                            "type": "string",
+                                            "example": "VI"
+                                        },
+                                        "cardNumber": {
+                                            "type": "string",
+                                            "example": "411111******1111"
+                                        },
+                                        "expiryDate": {
+                                            "type": "string",
+                                            "example": "12/25"
+                                        }
+                                    },
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "rooms": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "example": "STANDARD_ROOM"
+                                },
+                                "typeEstimated": {
+                                    "type": "object",
+                                    "nullable": true
+                                },
+                                "description": {
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "checkInDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-25"
+                    },
+                    "checkOutDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-27"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-15T10:30:00Z"
+                    }
+                },
+                "type": "object"
             }
         },
         "responses": {
@@ -7252,6 +8868,26 @@
                         }
                     }
                 }
+            },
+            "ServiceUnavailable": {
+                "description": "Service unavailable",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Hotel search service is currently unavailable"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {}
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
@@ -7287,6 +8923,14 @@
         {
             "name": "Favorites",
             "description": "Favorites"
+        },
+        {
+            "name": "Flights",
+            "description": "Flights"
+        },
+        {
+            "name": "Hotels",
+            "description": "Hotels"
         },
         {
             "name": "Itinerary Items",
