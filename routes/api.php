@@ -152,7 +152,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Agent Webhooks - Real-time event notifications
     Route::post('/agent-webhooks/{agentWebhook}/test', [AgentWebhookController::class, 'test'])->name('agent-webhooks.test');
     Route::apiResource('agent-webhooks', AgentWebhookController::class);
-    // Amadeus Hotel APIs
+    
+    // Hotel Management - Database CRUD
+    Route::apiResource('hotels', HotelController::class);
+    
+    // Amadeus Hotel APIs - External API integrations
     Route::get('/hotels/search', [HotelController::class, 'search'])->name('hotels.search');
     Route::get('/hotels/offers', [HotelController::class, 'searchOffers'])->name('hotels.offers');
     Route::get('/hotels/offers/{offerId}', [HotelController::class, 'getOffer'])->name('hotels.offers.show');

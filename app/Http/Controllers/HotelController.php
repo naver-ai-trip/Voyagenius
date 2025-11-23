@@ -7,13 +7,16 @@ use App\Http\Requests\GetHotelRatingsRequest;
 use App\Http\Requests\SearchHotelOffersRequest;
 use App\Http\Requests\SearchHotelsRequest;
 use App\Http\Requests\SearchHotelsWithOffersRequest;
+use App\Models\Hotel;
 use App\Services\Amadeus\HotelService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * HotelController
  *
  * Handles hotel search, ratings, and booking using Amadeus Hotel APIs.
+ * Also provides CRUD operations for saved hotels in the database.
  */
 class HotelController extends Controller
 {
@@ -850,6 +853,261 @@ class HotelController extends Controller
                 'total_hotels' => count($results['hotels'] ?? []),
                 'total_offers' => count($results['offers'] ?? [])
             ]
+        ]);
+    }
+
+    /**
+     * Get all saved hotels from database.
+     *
+     * @OA\Get(
+     *     path="/api/hotels",
+     *     summary="Get all saved hotels",
+     *     tags={"Hotels"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         description="Page number for pagination",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         required=false,
+     *         description="Items per page (default: 15, max: 100)",
+     *         @OA\Schema(type="integer", example=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="city_code",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by city code",
+     *         @OA\Schema(type="string", example="NYC")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of saved hotels",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Hotel")),
+     *             @OA\Property(property="meta", type="object",
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized")
+     * )
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $perPage = min($request->input('per_page', 15), 100);
+        $query = Hotel::query()->with(['reviews', 'favorites']);
+
+        if ($request->has('city_code')) {
+            $query->where('city_code', $request->input('city_code'));
+        }
+
+        $hotels = $query->paginate($perPage);
+
+        return response()->json($hotels);
+    }
+
+    /**
+     * Store a new hotel in database.
+     *
+     * @OA\Post(
+     *     path="/api/hotels",
+     *     summary="Save a hotel to database",
+     *     tags={"Hotels"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"amadeus_hotel_id", "name"},
+     *             @OA\Property(property="amadeus_hotel_id", type="string", example="RTPAR001"),
+     *             @OA\Property(property="name", type="string", example="Hotel Name"),
+     *             @OA\Property(property="chain_code", type="string", example="RT"),
+     *             @OA\Property(property="dupe_id", type="string", example="12345"),
+     *             @OA\Property(property="rating", type="number", format="float", example=4.5),
+     *             @OA\Property(property="city_code", type="string", example="PAR"),
+     *             @OA\Property(property="latitude", type="number", format="double", example=48.8566),
+     *             @OA\Property(property="longitude", type="number", format="double", example=2.3522),
+     *             @OA\Property(property="address", type="object"),
+     *             @OA\Property(property="contact", type="object"),
+     *             @OA\Property(property="description", type="object"),
+     *             @OA\Property(property="amenities", type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="media", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Hotel saved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Hotel saved successfully"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Hotel")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized"),
+     *     @OA\Response(response=422, ref="#/components/responses/ValidationError")
+     * )
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'amadeus_hotel_id' => 'required|string|max:255|unique:hotels,amadeus_hotel_id',
+            'name' => 'required|string|max:255',
+            'chain_code' => 'nullable|string|max:10',
+            'dupe_id' => 'nullable|string|max:255',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'city_code' => 'nullable|string|max:10',
+            'latitude' => 'nullable|numeric|min:-90|max:90',
+            'longitude' => 'nullable|numeric|min:-180|max:180',
+            'address' => 'nullable|array',
+            'contact' => 'nullable|array',
+            'description' => 'nullable|array',
+            'amenities' => 'nullable|array',
+            'media' => 'nullable|array',
+        ]);
+
+        $hotel = Hotel::create($validated);
+
+        return response()->json([
+            'message' => 'Hotel saved successfully',
+            'data' => $hotel->load(['reviews', 'favorites'])
+        ], 201);
+    }
+
+    /**
+     * Get a specific hotel from database.
+     *
+     * @OA\Get(
+     *     path="/api/hotels/{id}",
+     *     summary="Get a specific saved hotel",
+     *     tags={"Hotels"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Hotel ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Hotel details",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", ref="#/components/schemas/Hotel")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized"),
+     *     @OA\Response(response=404, ref="#/components/responses/NotFound")
+     * )
+     */
+    public function show(Hotel $hotel): JsonResponse
+    {
+        return response()->json([
+            'data' => $hotel->load(['reviews', 'favorites', 'itineraryItems', 'checkpoints'])
+        ]);
+    }
+
+    /**
+     * Update a hotel in database.
+     *
+     * @OA\Put(
+     *     path="/api/hotels/{id}",
+     *     summary="Update a saved hotel",
+     *     tags={"Hotels"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Hotel ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Updated Hotel Name"),
+     *             @OA\Property(property="rating", type="number", format="float", example=4.8),
+     *             @OA\Property(property="address", type="object"),
+     *             @OA\Property(property="contact", type="object"),
+     *             @OA\Property(property="description", type="object"),
+     *             @OA\Property(property="amenities", type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="media", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Hotel updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Hotel updated successfully"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Hotel")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized"),
+     *     @OA\Response(response=404, ref="#/components/responses/NotFound"),
+     *     @OA\Response(response=422, ref="#/components/responses/ValidationError")
+     * )
+     */
+    public function update(Request $request, Hotel $hotel): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'chain_code' => 'nullable|string|max:10',
+            'dupe_id' => 'nullable|string|max:255',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'city_code' => 'nullable|string|max:10',
+            'latitude' => 'nullable|numeric|min:-90|max:90',
+            'longitude' => 'nullable|numeric|min:-180|max:180',
+            'address' => 'nullable|array',
+            'contact' => 'nullable|array',
+            'description' => 'nullable|array',
+            'amenities' => 'nullable|array',
+            'media' => 'nullable|array',
+        ]);
+
+        $hotel->update($validated);
+
+        return response()->json([
+            'message' => 'Hotel updated successfully',
+            'data' => $hotel->load(['reviews', 'favorites'])
+        ]);
+    }
+
+    /**
+     * Delete a hotel from database.
+     *
+     * @OA\Delete(
+     *     path="/api/hotels/{id}",
+     *     summary="Delete a saved hotel",
+     *     tags={"Hotels"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Hotel ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Hotel deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Hotel deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/Unauthorized"),
+     *     @OA\Response(response=404, ref="#/components/responses/NotFound")
+     * )
+     */
+    public function destroy(Hotel $hotel): JsonResponse
+    {
+        $hotel->delete();
+
+        return response()->json([
+            'message' => 'Hotel deleted successfully'
         ]);
     }
 }
