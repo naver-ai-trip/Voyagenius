@@ -122,7 +122,7 @@ class FlightController extends Controller
      *         description="Service unavailable - Flight offers service is currently unavailable",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Flight offers service is currently unavailable"),
-     *             @OA\Property(property="data", type="array", @OA\Items(), example=[])
+     *             @OA\Property(property="data", type="array", @OA\Items(), example="Data")
      *         )
      *     )
      * )
