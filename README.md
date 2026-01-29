@@ -1,5 +1,7 @@
 # 🗺️ TripPlanner Backend API
 
+🎥 **[Watch Demo Video](https://www.youtube.com/watch?v=jn7gALF9Jfo)**
+
 ![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?logo=laravel)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php)
 ![Tests](https://img.shields.io/badge/Tests-206%20passing-brightgreen)
