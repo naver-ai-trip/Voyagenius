@@ -1,6 +1,10 @@
-# 🗺️ TripPlanner Backend API
+# Traver - Naver AI-Powered Travel Planning Platform
 
-🎥 **[Watch Demo Video](https://www.youtube.com/watch?v=jn7gALF9Jfo)**
+## 🎥 Demo Video
+
+[![Traver Demo](https://img.youtube.com/vi/jn7gALF9Jfo/0.jpg)](https://youtu.be/jn7gALF9Jfo)
+
+**[Watch the full demo on YouTube →](https://youtu.be/jn7gALF9Jfo)**
 
 ![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?logo=laravel)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php)
